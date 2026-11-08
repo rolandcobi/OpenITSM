@@ -1,3 +1,11 @@
+# Current publication status
+
+On 2026-11-08, Roland Cobi authorized public source publication. The repository https://github.com/rolandcobi/OpenITSM is public, the English update and screenshot gallery are merged into main, and main is the only GitHub branch. Private vulnerability reporting is enabled. See [current readiness](../RELEASE_READINESS.md) and [security policy](../SECURITY.md).
+
+The earlier preparation plan below is retained as historical context. Its statements about a pending first upload or an unchanged private repository describe that earlier preparation stage.
+
+---
+
 # GitHub repository plan
 
 - Owner model: personal account.

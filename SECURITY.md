@@ -4,9 +4,11 @@ OpenITSM is an engineering preview maintained by Roland Cobi. Local regression r
 
 ## Reporting a vulnerability
 
-The selected reporting mechanism is **GitHub private vulnerability reporting**. It is not enabled by these local files, and the existing repository rolandcobi/OpenITSM is private and verified, but no private reporting endpoint has been enabled or verified.
+GitHub private vulnerability reporting is enabled for [rolandcobi/OpenITSM](https://github.com/rolandcobi/OpenITSM). The enabled setting was verified through GitHub's API on 2026-11-08.
 
-When enabled, use the repository's Security > Advisories > Report a vulnerability interface. If that interface is unavailable, the maintainer must establish and publish a verified private channel before accepting sensitive reports. Do not substitute a public issue or pull request for a missing private channel.
+Sign in to GitHub and use [Report a vulnerability](https://github.com/rolandcobi/OpenITSM/security/advisories/new). Reports are handled privately through repository security advisories. Roland Cobi ([@rolandcobi](https://github.com/rolandcobi)) is the responsible maintainer.
+
+If the reporting form is unavailable, do not submit sensitive details through a public issue or pull request. Report only that the private reporting route is unavailable, without vulnerability details. No personal email address is designated as a security contact.
 
 Do not publish credentials, site databases, personal information, detailed exploits, or unfixed vulnerability reports in public issues. No personal email or unrelated GitHub account is designated as a security contact here.
 
@@ -27,8 +29,10 @@ Real site permissions, certificates, SMTP AUTH, capacity, OS/service shutdown an
 
 See [the support boundary](PHASE_0_SCOPE.md) and [candidate verification](VALIDATION.md). Package/dependency scans do not replace a complete application, native dependency, OS or browser audit.
 
-## Maintainer release requirement
+## Public preview and review status
 
-Before public release, enable and test the chosen private reporting mechanism, assign a responsible recipient, and update this policy with a verified route. These remain hosting tasks; no GitHub setting was changed by preparing SECURITY.md.
+The source repository is public as an engineering preview. Its complete 223-test regression gate passed, including the original 216 identities and seven English UI checks. Automated regression results do not establish independent security certification or production readiness.
+
+Private reporting enablement was verified through the GitHub API. A real vulnerability report and end-to-end notification delivery were not simulated. Independent source/security review and real deployment validation remain follow-up work.
 
 Official reference: [configure private vulnerability reporting](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/configure-for-a-repository).

@@ -150,7 +150,7 @@ a.kpi{text-decoration:none;color:inherit;cursor:pointer;transition:transform .12
 .appbody .tl-body>b{display:block;font-size:14px!important}.tl-dot{line-height:1;font-size:12px;padding-left:1px}.appbody .tl-body p{font-size:13px}
 .appbody .up-count .up-n{font-size:13px!important;display:inline;color:var(--text)}.appbody .up-count .linkbtn{background:none!important;border:0!important;box-shadow:none!important;padding:0!important;min-height:0!important;color:var(--cyan)!important;font-size:12px}
 
-/* ===== v8.6 Hapësira ime ===== */
+/* ===== v8.6 My workspace ===== */
 .sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 18px 18px}.sp-grid3{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:14px;padding:0 18px}
 .sp-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}.btn-sm{display:inline-block;padding:4px 10px;border:1px solid var(--line);border-radius:6px;font-size:12px;background:var(--panel2);color:var(--text);cursor:pointer;text-decoration:none}
 .sp-team{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 10px;margin:6px 0;border:1px solid var(--line);border-left:4px solid var(--cyan);border-radius:7px}.sp-team small,.sp-mine small{display:block;color:var(--muted);font-size:11px}.sp-team.arch{opacity:.55}

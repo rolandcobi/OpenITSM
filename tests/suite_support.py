@@ -32,7 +32,7 @@ def classify(name):
     if module in ('test_directory_edit_policy','test_ticket_policy','test_phase0_sql'): return 'policy'
     if module in ('test_phase0_migrations','test_p1_04_migrations'): return 'migration'
     if module in ('test_p1_02_factory','test_p1_03_database','test_p1_05_handlers'): return 'compatibility'
-    if module=='test_phase0_http': return 'http'
+    if module in ('test_phase0_http','test_english_ui'): return 'http'
     if module=='test_p1_06_runner': return 'tooling'
     raise ValueError('Unclassified test identity: '+name)
 

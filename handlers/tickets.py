@@ -3,7 +3,7 @@
 def register(runtime):
 
     def create_chain(tid, chain_users=(), chain_notes=()):
-        """Krijon rrjedhën e veprimit (hapa të njëpasnjëshëm). Hapi 1 = përgjegjësi i zgjedhur; hapat pasues presin radhën."""
+        """Create sequential workflow steps. The selected assignee acts first; subsequent steps remain pending."""
         c = runtime.db()
         tk = c.execute('SELECT * FROM tickets WHERE id=?', (tid,)).fetchone()
         ids = []
@@ -22,12 +22,12 @@ def register(runtime):
             c.execute('INSERT INTO ticket_steps(ticket_id,seq,user_id,instruction,status,activated_at,created_at) VALUES(?,?,?,?,?,?,?)', (tid, seq, uid, ins, 'Active' if seq == 1 else 'Pending', ts if seq == 1 else None, ts))
         c.commit()
         c.close()
-        runtime.event(tid, 'Workflow', f'Rrjedha e veprimit u krijua me {len(ids)} hap(a)')
+        runtime.event(tid, 'Workflow', f'Workflow created with {len(ids)} step(s)')
         runtime.notify_actor(tid, ids[0][0], 'assigned')
     runtime.create_chain = create_chain
 
     def handle_step(c, tk, action):
-        """Veprimet mbi rrjedhën: 'step_done' (nënshkrim + kalim te tjetri) dhe 'step_add' (shto hap)."""
+        """Workflow actions: step_done signs and hands off; step_add appends a step."""
         tid = tk['id']
         me = runtime.current()
         f = runtime.request.form
@@ -42,7 +42,7 @@ def register(runtime):
             u = c.execute('SELECT * FROM users WHERE id=? AND active=1', (int(uid),)).fetchone() if uid.isdigit() else None
             if not u or tk['status'] == 'Closed':
                 c.close()
-                runtime.flash('Zgjidhni një përdorues aktiv (dhe ticket-i të mos jetë i mbyllur).', 'danger')
+                runtime.flash('Select an active user; the ticket must not be closed.', 'danger')
                 return back
             if not runtime.can_delegate_user(me, u, tk['unit_id'], runtime.ORG, c):
                 c.close()
@@ -51,7 +51,7 @@ def register(runtime):
             n = c.execute('SELECT count(*) n FROM ticket_steps WHERE ticket_id=?', (tid,)).fetchone()['n']
             activate = False
             if n == 0 and tk['assignee_id']:
-                c.execute('INSERT INTO ticket_steps(ticket_id,seq,user_id,instruction,status,activated_at,created_at) VALUES(?,?,?,?,?,?,?)', (tid, 1, tk['assignee_id'], 'Caktimi fillestar', 'Active', ts, ts))
+                c.execute('INSERT INTO ticket_steps(ticket_id,seq,user_id,instruction,status,activated_at,created_at) VALUES(?,?,?,?,?,?,?)', (tid, 1, tk['assignee_id'], 'Initial assignment', 'Active', ts, ts))
                 n = 1
             live = c.execute("SELECT count(*) n FROM ticket_steps WHERE ticket_id=? AND status IN ('Active','Pending')", (tid,)).fetchone()['n']
             seq = c.execute('SELECT COALESCE(MAX(seq),0) m FROM ticket_steps WHERE ticket_id=?', (tid,)).fetchone()['m'] + 1
@@ -61,11 +61,11 @@ def register(runtime):
                 c.execute("UPDATE tickets SET assignee_id=?,status=CASE WHEN status IN ('Resolved') THEN 'In Progress' ELSE status END,resolved_at=CASE WHEN status='Resolved' THEN NULL ELSE resolved_at END WHERE id=?", (u['id'], tid))
             c.commit()
             c.close()
-            runtime.event(tid, 'Workflow', f"U shtua hapi {seq}: {u['full_name']}")
+            runtime.event(tid, 'Workflow', f"Added step {seq}: {u['full_name']}")
             runtime.audit('StepAdd', 'Ticket', tid, new=u['full_name'])
             if activate:
                 runtime.notify_actor(tid, u['id'], 'turn')
-            runtime.flash('Hapi u shtua në rrjedhë.', 'success')
+            runtime.flash('Step added to the workflow.', 'success')
             return back
         st = c.execute("SELECT * FROM ticket_steps WHERE ticket_id=? AND status='Active' ORDER BY seq LIMIT 1", (tid,)).fetchone()
         note = f.get('note', '').strip()[:2000]
@@ -75,7 +75,7 @@ def register(runtime):
             return ('Access Denied', 403)
         if not note:
             c.close()
-            runtime.flash('Shënimi i nënshkrimit është i detyrueshëm.', 'danger')
+            runtime.flash('A signature note is required.', 'danger')
             return back
         ts = runtime.now()
         c.execute("UPDATE ticket_steps SET status='Done',note=?,signed_by=?,signed_at=? WHERE id=?", (note, me['full_name'], ts, st['id']))
@@ -86,7 +86,7 @@ def register(runtime):
             c.execute("UPDATE ticket_steps SET status='Active',activated_at=? WHERE id=?", (ts, nxt['id']))
             c.execute("UPDATE tickets SET assignee_id=?,status=CASE WHEN status IN ('Open','Assigned','Waiting') THEN 'In Progress' ELSE status END WHERE id=?", (nxt['user_id'], tid))
         elif c.execute("SELECT 1 FROM tasks WHERE ticket_id=? AND status!='Completed'", (tid,)).fetchone():
-            msg = 'Hapi i fundit u nënshkrua, por ticket-i mbetet i hapur sepse ka task-e të pambyllura.'
+            msg = 'The last step was signed, but the ticket remains open because it has unfinished tasks.'
         elif tk['status'] not in ('Resolved', 'Closed'):
             c.execute("UPDATE tickets SET status='Resolved',resolved_at=? WHERE id=?", (ts, tid))
             resolved = True
@@ -94,16 +94,16 @@ def register(runtime):
         req = tk['requester_id']
         code = tk['code']
         c.close()
-        runtime.event(tid, 'Signature', f"{me['full_name']} nënshkroi hapin {st['seq']}: {note[:300]}")
-        runtime.audit('StepDone', 'Ticket', tid, new=f"hap {st['seq']}")
+        runtime.event(tid, 'Signature', f"{me['full_name']} signed step {st['seq']}: {note[:300]}")
+        runtime.audit('StepDone', 'Ticket', tid, new=f"step {st['seq']}")
         if resolved:
-            runtime.event(tid, 'Status', 'Të gjithë hapat u nënshkruan → Resolved')
+            runtime.event(tid, 'Status', 'All steps signed → Resolved')
             runtime.audit('Status', 'Ticket', tid, tk['status'], 'Resolved')
         if nxt:
             runtime.notify_actor(tid, nxt['user_id'], 'turn')
         if resolved and req and (req != me['id']):
-            runtime.notify(req, f'Ticket i zgjidhur – {code}', 'Të gjithë hapat e rrjedhës u përfunduan.', f'/tickets/{tid}', 'info')
-        runtime.flash(msg or ('Nënshkrimi u regjistrua. Ticket-i iu kalua përgjegjësit tjetër.' if nxt else 'Nënshkrimi u regjistrua. Rrjedha përfundoi.'), 'success')
+            runtime.notify(req, f'Ticket resolved – {code}', 'All workflow steps completed.', f'/tickets/{tid}', 'info')
+        runtime.flash(msg or ('Signature recorded. Ticket passed to the next assignee.' if nxt else 'Signature recorded. Workflow completed.'), 'success')
         return back
     runtime.handle_step = handle_step
 
@@ -196,7 +196,7 @@ def register(runtime):
             pri = runtime.request.form.get('priority')
             if typ not in runtime.TYPES or pri not in runtime.PRIOS or (not runtime.request.form.get('title', '').strip()):
                 c.close()
-                runtime.flash('Të dhëna të pavlefshme (kategoria, prioriteti dhe titulli janë të detyrueshme).', 'danger')
+                runtime.flash('Invalid data (category, priority and title are required).', 'danger')
                 return runtime.redirect(runtime.url_for('new_ticket'))
             prefix = {'Incident': 'INC', 'Service Request': 'REQ', 'Task': 'TSK', 'Problem': 'PRB', 'Change': 'CHG'}.get(typ, 'TKT')
             code = 'TMP-' + runtime.secrets.token_hex(6)
@@ -210,7 +210,7 @@ def register(runtime):
             c.commit()
             c.close()
             runtime.audit('Create', 'Ticket', tid, new=runtime.request.form['title'][:200])
-            runtime.event(tid, 'Created', f'Ticket {code} u krijua')
+            runtime.event(tid, 'Created', f'Ticket {code} created')
             runtime.create_chain(tid, runtime.request.form.getlist('chain_users'), runtime.request.form.getlist('chain_notes'))
             return runtime.redirect(runtime.url_for('ticket_detail', tid=tid))
         requester = runtime.current()['role'] in ('Requester', 'Management')
@@ -232,7 +232,7 @@ def register(runtime):
         tk = c.execute('SELECT * FROM tickets WHERE id=?', (tid,)).fetchone()
         if not tk:
             c.close()
-            return ('Nuk u gjet', 404)
+            return ('Not found', 404)
         if not runtime.can_view(c, tk):
             c.close()
             runtime.audit('AccessDenied', 'Ticket', tid)
@@ -262,17 +262,17 @@ def register(runtime):
                 src = 'Open' if old == 'New' else old
                 if new not in runtime.TRANS:
                     c.close()
-                    runtime.flash('Status i pavlefshëm.', 'danger')
+                    runtime.flash('Invalid status.', 'danger')
                     return back
                 if new != old:
                     path = runtime.status_path(src, new)
                     if not path:
                         c.close()
-                        runtime.flash(f'Tranzicion i palejuar: {old} → {new}', 'danger')
+                        runtime.flash(f'Transition not permitted: {old} → {new}', 'danger')
                         return back
                     if new in ('Resolved', 'Closed') and len(note) < 5:
                         c.close()
-                        runtime.flash('Për të zgjidhur/mbyllur ticket-in duhet një përshkrim i shkurtër i asaj që u bë (min. 5 shkronja).', 'danger')
+                        runtime.flash('Resolving or closing a ticket requires completion notes (at least 5 characters).', 'danger')
                         return back
                     if new in ('Resolved', 'Closed') and c.execute("SELECT 1 FROM ticket_steps WHERE ticket_id=? AND status IN ('Active','Pending')", (tid,)).fetchone():
                         c.close()
@@ -280,7 +280,7 @@ def register(runtime):
                         return back
                     if new in ('Resolved', 'Closed') and c.execute("SELECT 1 FROM tasks WHERE ticket_id=? AND status!='Completed'", (tid,)).fetchone():
                         c.close()
-                        runtime.flash('Ka task-e të pambyllura.', 'danger')
+                        runtime.flash('There are unfinished tasks.', 'danger')
                         return back
                     ts = runtime.now()
                     prev = old
@@ -308,7 +308,7 @@ def register(runtime):
                     runtime.flash(err, 'danger')
                     return runtime.redirect(runtime.url_for('ticket_detail', tid=tid))
                 runtime.after_task_created(newid, tid)
-                runtime.flash('Detyra u krijua, u caktua dhe iu dërgua njoftim.', 'success')
+                runtime.flash('Task created, assigned and notified.', 'success')
                 return runtime.redirect(runtime.url_for('ticket_detail', tid=tid))
         t = c.execute('SELECT t.*,s.name service,u.full_name assignee FROM tickets t LEFT JOIN services s ON s.id=t.service_id LEFT JOIN users u ON u.id=t.assignee_id WHERE t.id=?', (tid,)).fetchone()
         tasks = c.execute('SELECT ta.*,g.name group_name,(SELECT group_concat(u.full_name, ", ") FROM task_assignees x JOIN users u ON u.id=x.user_id WHERE x.task_id=ta.id) assignees FROM tasks ta LEFT JOIN support_groups g ON g.id=ta.group_id WHERE ticket_id=? ORDER BY ta.id', (tid,)).fetchall()
@@ -328,7 +328,7 @@ def register(runtime):
     runtime.ticket_detail = ticket_detail
 
     def status_path(old, new):
-        """Rruga e lejuar e statuseve. Për Resolved/Closed lejohen hapa ndërmjetës (p.sh. Open→In Progress→Resolved)."""
+        """Find an allowed status path; resolution and closure may include intermediate transitions."""
         if old == new:
             return []
         if new in runtime.TRANS.get(old, []):
@@ -382,7 +382,7 @@ def register(runtime):
     def create_task(c, tid, f, parent=None):
         title = (f.get('task_title') or '').strip()[:200]
         if not title:
-            return (None, 'Titulli i detyrës është i detyrueshëm.')
+            return (None, 'Task title is required.')
         uids = []
         tk = c.execute('SELECT * FROM tickets WHERE id=?', (tid,)).fetchone()
         if not tk or tk['status'] == 'Closed':
@@ -426,11 +426,11 @@ def register(runtime):
         names = ', '.join((r['full_name'] for r in c.execute('SELECT u.full_name FROM task_assignees x JOIN users u ON u.id=x.user_id WHERE x.task_id=? ORDER BY u.full_name', (taskid,))))
         c.close()
         me = runtime.current()['full_name']
-        runtime.task_event(taskid, 'Created', f'Detyra u krijua nga {me}' + (' si nën-detyrë' if parent else ''))
-        runtime.task_event(taskid, 'Assigned', f'Iu caktua: {names}')
+        runtime.task_event(taskid, 'Created', f'Task created by {me}' + (' as a subtask' if parent else ''))
+        runtime.task_event(taskid, 'Assigned', f'Assigned to: {names}')
         if parent:
-            runtime.task_event(parent, 'Subtask', f"U shtua nën-detyra «{t['title']}» (caktuar: {names})")
-        runtime.event(tid, 'Task', f"Detyra «{t['title']}» u krijua nga {me} dhe iu caktua: {names}")
+            runtime.task_event(parent, 'Subtask', f"Subtask added «{t['title']}» (assigned: {names})")
+        runtime.event(tid, 'Task', f"Tasks «{t['title']}» was created by {me} and assigned to: {names}")
         runtime.audit('TaskCreate', 'Task', taskid, new=t['title'])
         runtime.notify_task(taskid)
     runtime.after_task_created = after_task_created
@@ -452,7 +452,7 @@ def register(runtime):
         t, tk, see, act = runtime.load_task(c, taskid)
         if not t:
             c.close()
-            return ('Nuk u gjet', 404)
+            return ('Not found', 404)
         if not see:
             c.close()
             runtime.audit('AccessDenied', 'Task', taskid)
@@ -464,9 +464,9 @@ def register(runtime):
         pre = []
         post = []
         if 'Created' not in types:
-            pre.append(dict(event_type='Created', details='Detyra u krijua' + (f" nga {t['creator']}" if t['creator'] else ''), actor=t['creator'], created_at=t['created_at'], synthetic=1))
+            pre.append(dict(event_type='Created', details='Task created' + (f" by {t['creator']}" if t['creator'] else ''), actor=t['creator'], created_at=t['created_at'], synthetic=1))
         if 'Assigned' not in types and names:
-            pre.append(dict(event_type='Assigned', details='Iu caktua: ' + names, actor=t['creator'], created_at=t['created_at'], synthetic=1))
+            pre.append(dict(event_type='Assigned', details='Assigned to: ' + names, actor=t['creator'], created_at=t['created_at'], synthetic=1))
         if t['status'] == 'Completed' and 'Completed' not in types:
             post.append(dict(event_type='Completed', details=t['completion_notes'] or '', actor=None, created_at=t['completed_at'], synthetic=1))
         subs = c.execute('SELECT ta.*,(SELECT group_concat(u.full_name, ", ") FROM task_assignees x JOIN users u ON u.id=x.user_id WHERE x.task_id=ta.id) assignees FROM tasks ta WHERE ta.parent_id=? ORDER BY ta.id', (taskid,)).fetchall()
@@ -493,11 +493,11 @@ def register(runtime):
             return back
         if len(notes) < 5:
             c.close()
-            runtime.flash('Përshkrimi i shkurtër i asaj që u bë është i detyrueshëm (min. 5 shkronja).', 'danger')
+            runtime.flash('Completion notes are required (at least 5 characters).', 'danger')
             return back
         if c.execute("SELECT 1 FROM tasks WHERE parent_id=? AND status!='Completed'", (taskid,)).fetchone():
             c.close()
-            runtime.flash('Kjo detyrë ka nën-detyra të pambyllura. Mbyllini së pari ato.', 'danger')
+            runtime.flash('This task has unfinished subtasks. Complete them first.', 'danger')
             return back
         c.execute("UPDATE tasks SET status='Completed',completed_at=?,completion_notes=? WHERE id=?", (runtime.now(), notes, taskid))
         c.commit()
@@ -505,11 +505,11 @@ def register(runtime):
         c.close()
         me = runtime.current()['full_name']
         runtime.task_event(taskid, 'Completed', notes)
-        runtime.event(t['ticket_id'], 'Task', f"Detyra «{t['title']}» u përfundua nga {me}: {notes}")
+        runtime.event(t['ticket_id'], 'Task', f"Tasks «{t['title']}» was completed by {me}: {notes}")
         runtime.audit('TaskComplete', 'Task', taskid, new=notes[:300])
         for r in rcpt:
-            runtime.notify(r, f"Detyra u përfundua – {t['title']}", f'{me}: {notes[:200]}', f'/tasks/{taskid}', 'task')
-        runtime.flash('Detyra u mbyll me sukses.', 'success')
+            runtime.notify(r, f"Task completed – {t['title']}", f'{me}: {notes[:200]}', f'/tasks/{taskid}', 'task')
+        runtime.flash('Task completed successfully.', 'success')
         return back
     runtime.complete_task = complete_task
 
@@ -528,44 +528,44 @@ def register(runtime):
         if a == 'start':
             if t['status'] != 'Open':
                 c.close()
-                runtime.flash('Detyra është tashmë në proces ose e përfunduar.', 'danger')
+                runtime.flash('This task is already in progress or completed.', 'danger')
                 return back
             c.execute("UPDATE tasks SET status='In Progress',started_at=? WHERE id=?", (runtime.now(), taskid))
             c.commit()
             c.close()
-            runtime.task_event(taskid, 'Started', 'Filloi punën')
-            runtime.event(t['ticket_id'], 'Task', f"Detyra «{t['title']}» filloi")
+            runtime.task_event(taskid, 'Started', 'Work started')
+            runtime.event(t['ticket_id'], 'Task', f"Tasks «{t['title']}» started")
             runtime.audit('TaskStart', 'Task', taskid)
-            runtime.flash('Detyra kaloi në proces.', 'success')
+            runtime.flash('Task moved to in progress.', 'success')
             return back
         if a == 'update':
             note = (f.get('note') or '').strip()[:1000]
             if done or len(note) < 3:
                 c.close()
-                runtime.flash('Shkruani një shënim (min. 3 shkronja) në një detyrë të pambyllur.', 'danger')
+                runtime.flash('Enter a note (at least 3 characters) on an unfinished task.', 'danger')
                 return back
             c.close()
             runtime.task_event(taskid, 'Update', note)
             runtime.audit('TaskUpdate', 'Task', taskid, new=note[:200])
-            runtime.flash('Shënimi u shtua në timeline.', 'success')
+            runtime.flash('Note added to the timeline.', 'success')
             return back
         if a == 'reopen':
             note = (f.get('note') or '').strip()[:1000]
             if not done or len(note) < 5:
                 c.close()
-                runtime.flash('Për ta rihapur duhet një arsye (min. 5 shkronja).', 'danger')
+                runtime.flash('Reopening requires a reason (at least 5 characters).', 'danger')
                 return back
             c.execute("UPDATE tasks SET status='In Progress',completed_at=NULL WHERE id=?", (taskid,))
             c.commit()
             c.close()
             runtime.task_event(taskid, 'Reopened', note)
             runtime.audit('TaskReopen', 'Task', taskid, new=note[:200])
-            runtime.flash('Detyra u rihap.', 'success')
+            runtime.flash('Task reopened.', 'success')
             return back
         if a == 'subtask':
             if done:
                 c.close()
-                runtime.flash('Nuk mund të shtohet nën-detyrë në një detyrë të përfunduar.', 'danger')
+                runtime.flash('Cannot add a subtask to a completed task.', 'danger')
                 return back
             newid, err = runtime.create_task(c, t['ticket_id'], f, parent=taskid)
             c.close()
@@ -573,9 +573,9 @@ def register(runtime):
                 runtime.flash(err, 'danger')
                 return back
             runtime.after_task_created(newid, t['ticket_id'], parent=taskid)
-            runtime.flash('Nën-detyra u krijua dhe iu dërgua njoftim.', 'success')
+            runtime.flash('Subtask created and notified.', 'success')
             return back
         c.close()
-        runtime.flash('Veprim i pavlefshëm.', 'danger')
+        runtime.flash('Invalid action.', 'danger')
         return back
     runtime.task_do = task_do

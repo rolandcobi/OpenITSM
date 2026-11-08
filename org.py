@@ -1,9 +1,9 @@
 """Organization hierarchy and ticket visibility.
-Regjimi 'legacy' = sjellja e vjetër sipas roleve; 'org' = dukshmëri sipas njësisë/sektorit. Ndërrohet nga faqja /org."""
+The legacy mode uses role-based visibility; org mode scopes access by unit or department. Configure it on /org."""
 import re
 from flask import abort, g, render_template, request, redirect, url_for, flash
 SCHEMA="CREATE TABLE IF NOT EXISTS org_units(id INTEGER PRIMARY KEY,parent_id INTEGER,name TEXT NOT NULL,kind TEXT DEFAULT 'SECTOR',sort INTEGER DEFAULT 0);"
-ORG_GLOBAL_ROLES=('Management','Auditor')      # shohin dhe auditojnë gjithçka (drejtuesit)
+ORG_GLOBAL_ROLES=('Management','Auditor')      # Legacy global read roles; operational access remains subject to policy
 ORG_ADMIN_ROLES=('System Administrator','Central Administrator')
 TREE=('Example Organization','ORG',[
  ('IT Operations','UNIT',['Service Desk','Network Operations','Systems Administration']),
@@ -43,7 +43,7 @@ def init(app,D):
         if t['unit_id'] and t['unit_id'] in scope_ids(c,u): return True
         return False  # Org mode uses explicit unit scope; legacy structure must not bypass it.
     def user_filter(c,u):
-        """Kushti për listën e përdoruesve në Ngarkesa: vetja + ata të njësisë/sektorit; None = të gjithë."""
+        """Workload user filter: self and users in the permitted unit scope; None means unrestricted."""
         if is_global(c,u): return None
         ids=scope_ids(c,u); s="(u.id=:uid"+(f" OR u.org_unit_id IN ({','.join(str(int(i)) for i in ids)})" if ids else '')+")"
         return s,{'uid':u['id']}
@@ -126,19 +126,19 @@ def init(app,D):
                 if denied: c.close(); audit('AccessDenied','Org',target or 0); return 'Access Denied',403
             if a=='unit_add' and f.get('name','').strip():
                 p=uid_('parent_id'); kind=('STRUCT' if p is None else (f.get('kind') if f.get('kind') in ('UNIT','SECTOR') else 'SECTOR'))
-                c.execute('INSERT INTO org_units(parent_id,name,kind,sort) VALUES(?,?,?,(SELECT COALESCE(MAX(sort),0)+1 FROM org_units WHERE parent_id IS ?))',(p,f['name'].strip()[:120],kind,p)); msg='Struktura e pavarur u shtua.' if p is None else 'Njësia u shtua.'
-            elif a=='unit_rename' and uid_('id') and f.get('name','').strip(): c.execute('UPDATE org_units SET name=? WHERE id=?',(f['name'].strip()[:120],uid_('id'))); msg='Emri u ndryshua.'
+                c.execute('INSERT INTO org_units(parent_id,name,kind,sort) VALUES(?,?,?,(SELECT COALESCE(MAX(sort),0)+1 FROM org_units WHERE parent_id IS ?))',(p,f['name'].strip()[:120],kind,p)); msg='Independent structure added.' if p is None else 'Unit added.'
+            elif a=='unit_rename' and uid_('id') and f.get('name','').strip(): c.execute('UPDATE org_units SET name=? WHERE id=?',(f['name'].strip()[:120],uid_('id'))); msg='Name changed.'
             elif a=='unit_move' and uid_('id'):
                 i,p=uid_('id'),uid_('parent_id')
-                if p and (p==i or p in subtree(c,i)): msg='Nuk mund ta zhvendosni brenda vetes.'
-                elif p is None and i==root_id(c): msg='Rrënja kryesore nuk zhvendoset.'
-                elif p is None: c.execute("UPDATE org_units SET parent_id=NULL,kind='STRUCT' WHERE id=?",(i,)); msg='U bë strukturë e pavarur.'
-                else: c.execute('UPDATE org_units SET parent_id=? WHERE id=?',(p,i)); msg='Njësia u zhvendos.'
+                if p and (p==i or p in subtree(c,i)): msg='Cannot move a unit into itself or its descendants.'
+                elif p is None and i==root_id(c): msg='The main root cannot be moved.'
+                elif p is None: c.execute("UPDATE org_units SET parent_id=NULL,kind='STRUCT' WHERE id=?",(i,)); msg='Converted to an independent structure.'
+                else: c.execute('UPDATE org_units SET parent_id=? WHERE id=?',(p,i)); msg='Unit moved.'
             elif a=='unit_delete' and uid_('id') and f.get('confirm'):
                 i=uid_('id'); busy=c.execute('SELECT (SELECT count(*) FROM org_units WHERE parent_id=?1)+(SELECT count(*) FROM users WHERE org_unit_id=?1)+(SELECT count(*) FROM tickets WHERE unit_id=?1)+(SELECT count(*) FROM services WHERE unit_id=?1) n',(i,)).fetchone()['n']
-                if busy: msg='Njësia nuk është bosh (ka nënnjësi, përdorues, ticket-e ose shërbime).'
+                if busy: msg='The unit is not empty (it contains child units, users, tickets or services).'
                 elif i==root_id(c): msg='The root organization cannot be deleted.'
-                else: c.execute('DELETE FROM org_units WHERE id=?',(i,)); msg='Njësia u fshi.'
+                else: c.execute('DELETE FROM org_units WHERE id=?',(i,)); msg='Unit deleted.'
             elif a=='assign_users':
                 for r in c.execute("SELECT id,org_unit_id,org_head,role FROM users WHERE active=1").fetchall():
                     if f"unit_{r['id']}" not in f and f"head_{r['id']}" not in f: continue
@@ -147,7 +147,7 @@ def init(app,D):
                     if scoped and un not in allowed_units: c.rollback(); c.close(); return 'Access Denied',403
                     if scoped and f.get(f"head_{r['id']}") and (not u['org_head'] or un and not set(subtree(c,un)).issubset(allowed_units)): c.rollback(); c.close(); abort(403)
                     c.execute('UPDATE users SET org_unit_id=?,org_head=? WHERE id=?',(un,1 if f.get(f"head_{r['id']}") and un else 0,r['id']))
-                msg='Caktimet e përdoruesve u ruajtën.'
+                msg='User assignments saved.'
             elif a=='service_map':
                 for r in c.execute('SELECT id,unit_id FROM services').fetchall():
                     if f"svc_{r['id']}" not in f: continue
@@ -155,16 +155,16 @@ def init(app,D):
                     un=f.get(f"svc_{r['id']}"); un=int(un) if un and un.isdigit() else None
                     if scoped and un not in allowed_units: c.rollback(); c.close(); return 'Access Denied',403
                     c.execute('UPDATE services SET unit_id=? WHERE id=?',(un,r['id']))
-                msg='Lidhja shërbim → sektor u ruajt.'
+                msg='Service → department mapping saved.'
             elif a=='settings':
                 newm=f.get('mode') if f.get('mode') in ('legacy','org') else 'legacy'; intake=uid_('intake_unit_id')
                 if intake: c.execute("INSERT OR REPLACE INTO settings(key,value) VALUES('intake_unit_id',?)",(str(intake),))
-                if newm=='org' and mode()!='org' and not f.get('confirm'): msg='Për të kaluar te dukshmëria sipas strukturës, konfirmoni kutinë.'
+                if newm=='org' and mode()!='org' and not f.get('confirm'): msg='Select the confirmation checkbox to enable organizational visibility.'
                 else:
                     c.execute("INSERT OR REPLACE INTO settings(key,value) VALUES('visibility_mode',?)",(newm,)); g._org={}
-                    if newm=='org': c.commit(); nb=backfill(c); msg=f'Dukshmëria sipas strukturës u aktivizua; {nb} ticket-e pa njësi u drejtuan automatikisht.'
-                    else: msg='U kthye dukshmëria e vjetër sipas roleve.'
-            if msg: c.commit(); c.close(); audit('Update','Org',0,new=a); flash(msg,'success' if 'Nuk' not in msg and 'konfirmoni' not in msg else 'danger'); return redirect(url_for('org_page'))
+                    if newm=='org': c.commit(); nb=backfill(c); msg=f'Organizational visibility enabled; {nb} tickets without a unit were routed automatically.'
+                    else: msg='Legacy role-based visibility restored.'
+            if msg: c.commit(); c.close(); audit('Update','Org',0,new=a); flash(msg,'success' if not msg.startswith(('Cannot', 'The main root', 'The unit is not empty', 'The root organization', 'Select the confirmation')) else 'danger'); return redirect(url_for('org_page'))
         opts=options(c); counts={r['id']:r for r in c.execute("SELECT o.id,(SELECT count(*) FROM users u WHERE u.org_unit_id=o.id AND u.active=1) nu,(SELECT count(*) FROM tickets t WHERE t.unit_id=o.id AND t.status NOT IN ('Resolved','Closed')) nt FROM org_units o")}
         heads={}
         for r in c.execute('SELECT org_unit_id,full_name FROM users WHERE org_head=1 AND active=1'): heads.setdefault(r['org_unit_id'],[]).append(r['full_name'])

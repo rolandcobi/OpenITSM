@@ -14,9 +14,34 @@ Copyright 2026 Roland Cobi. Licensed under [Apache License 2.0](LICENSE); see [N
 
 Only System Administrator is operationally global. Unit scope, ownership, role permissions, CSRF checks, and session revocation remain authoritative.
 
+## Screenshots
+
+Real browser captures of the English interface using an isolated synthetic demonstration workspace. People, organizations, addresses and records shown here are fictional.
+
+### Service operations dashboard
+
+![OpenITSM dashboard with service health, ticket counts and SLA charts](docs/images/dashboard.png)
+
+| Asset inventory | Ticket workflow |
+| --- | --- |
+| [![CMDB asset inventory](docs/images/assets.png)](docs/images/assets.png) | [![Ticket details, assignment and workflow signatures](docs/images/ticket-workflow.png)](docs/images/ticket-workflow.png) |
+
+| Team workspace | Reports and exports |
+| --- | --- |
+| [![Team board with task progress](docs/images/team-board.png)](docs/images/team-board.png) | [![Reports, workload and scoped exports](docs/images/reports.png)](docs/images/reports.png) |
+
+<details>
+<summary>Sign-in page</summary>
+
+![OpenITSM sign-in page](docs/images/sign-in.png)
+
+</details>
+
+See [screenshot details](docs/SCREENSHOTS.md). These images illustrate the engineering preview; they do not represent a production deployment.
+
 ## Project status
 
-OpenITSM is an **engineering preview**. The Windows source candidate OpenITSM-rc-001 passed a clean installation and both complete 216-test regression gates. This is bounded internal validation, not independent security certification or production approval.
+OpenITSM is an **engineering preview**. The Windows source candidate OpenITSM-rc-001 passed a clean installation and both complete 216-test regression gates. The English interface update passed the complete 223-test gate (the original 216 identities plus seven English UI regressions); see [English update validation](docs/ENGLISH_UI_UPDATE.md). This is bounded internal validation, not independent security certification or production approval.
 
 The [candidate validation report](VALIDATION.md) records the exact ZIP and SHA-256. [Public release readiness](RELEASE_READINESS.md) identifies remaining review and hosting decisions.
 
@@ -66,4 +91,4 @@ SMTP and backup workers are best effort. Daily backups do not replace an existin
 - [GitHub preparation and release checklist](docs/GITHUB_RELEASE_PREPARATION.md)
 - [Engineering release notes](CHANGELOG.md)
 
-The connected personal GitHub account is rolandcobi and the verified existing target is the private repository rolandcobi/OpenITSM. See [repository plan](docs/GITHUB_REPOSITORY_PLAN.md); the initial upload still requires explicit approval and private reporting remains unconfigured. No hosted repository, workflow, publication, or external service was activated by preparing these files.
+Repository visibility, release publication and production deployment are separate decisions. Updating the repository does not deploy the application.

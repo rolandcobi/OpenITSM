@@ -1,4 +1,4 @@
-"""Chat i brendshëm 1-me-1: mesazhe direkte midis përdoruesve aktivë, me njoftim në kohë reale (polling)."""
+"""Internal one-to-one chat between active users with polling notifications."""
 import time
 from authorization import directory_scope_sql
 from collections import defaultdict, deque
@@ -35,7 +35,7 @@ def init(app,D):
     @login_required
     def chat_thread():
         me=current()['id']; c=db(); p=partner(c,request.args.get('with'))
-        if not p or p['id']==me: c.close(); return jsonify(error='Përdoruesi nuk u gjet'),404
+        if not p or p['id']==me: c.close(); return jsonify(error='User not found'),404
         after=int(request.args.get('after')) if (request.args.get('after') or '').isdigit() else 0
         rows=c.execute('SELECT * FROM (SELECT * FROM chat_messages WHERE ((from_id=? AND to_id=?) OR (from_id=? AND to_id=?)) AND id>? ORDER BY id DESC LIMIT 80) ORDER BY id',(me,p['id'],p['id'],me,after)).fetchall()
         c.close()
@@ -57,9 +57,9 @@ def init(app,D):
         body=str(j.get('body') or '').strip()[:2000]
         q=RATE[me]; t=time.time()
         while q and t-q[0]>10: q.popleft()
-        if len(q)>=20: return jsonify(error='Shumë mesazhe; prisni pak.'),429
+        if len(q)>=20: return jsonify(error='Too many messages; please wait.'),429
         c=db(); p=partner(c,j.get('to'))
-        if not p or p['id']==me: c.close(); return jsonify(error='Përdoruesi nuk u gjet'),404
-        if not body: c.close(); return jsonify(error='Mesazhi është bosh'),400
+        if not p or p['id']==me: c.close(); return jsonify(error='User not found'),404
+        if not body: c.close(); return jsonify(error='Message is empty'),400
         q.append(t); mid=c.execute('INSERT INTO chat_messages(from_id,to_id,body,created_at) VALUES(?,?,?,?)',(me,p['id'],body,now())).lastrowid; c.commit()
         r=c.execute('SELECT * FROM chat_messages WHERE id=?',(mid,)).fetchone(); c.close(); return jsonify(message=msg(r)),201

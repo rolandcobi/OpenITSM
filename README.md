@@ -2,6 +2,8 @@
 
 OpenITSM is an open-source IT service management platform for organizations that need a shared place to manage assets, report incidents, create service requests, and coordinate IT work.
 
+**New to GitHub or Python? [Start with the beginner installation guide](INSTALLATION_GUIDE.md).** It explains every step, from Download ZIP to your first login.
+
 Copyright 2026 Roland Cobi. Licensed under [Apache License 2.0](LICENSE); see [NOTICE](NOTICE) and [third-party notices](THIRD_PARTY_NOTICES.md).
 
 ## Capabilities
@@ -48,6 +50,8 @@ The [candidate validation report](VALIDATION.md) records the exact ZIP and SHA-2
 This repository documentation is newer than the frozen candidate archive. The GitHub community files prepared here are not inside that archive. A future GitHub-generated source archive is a different artifact and must not be described as the validated ZIP.
 
 ## Installation for evaluation
+
+For a click-by-click walkthrough with first login, restarts, and troubleshooting, use the [beginner installation guide](INSTALLATION_GUIDE.md).
 
 Validated profile: **Windows x64 / CPython 3.14.7 / Flask 3.1.3**, one process and local SQLite/WAL. Other platforms and infrastructure profiles are not certified by these results.
 

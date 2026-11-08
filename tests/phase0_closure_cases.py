@@ -182,9 +182,9 @@ class ClosureCases:
                                   and all(not fl.get(k) or r[k]==fl[k] for k in ('status','type'))
                                   and (not fl.get('date_from') or r['date']>=fl['date_from'])
                                   and (not fl.get('date_to') or r['date']<=fl['date_to'])]
-                        expected=[['Përmbledhje','Ticket gjithsej',str(len(selected))]]
-                        for label,key in (('Sipas statusit','status'),('Sipas tipit','type'),
-                                          ('Sipas prioritetit','priority'),('Sipas SLA','sla'),('Sipas përgjegjësit','assignee')):
+                        expected=[['Summary','Total tickets',str(len(selected))]]
+                        for label,key in (('By status','status'),('By type','type'),
+                                          ('By priority','priority'),('By SLA','sla'),('By assignee','assignee')):
                             counts=Counter(r.get(key,'-') for r in selected)
                             expected += [[label,self.m._csv_safe(k),str(v)] for k,v in counts.most_common()]
                         for fmt in ('csv','xlsx'):

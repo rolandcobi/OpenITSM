@@ -150,7 +150,7 @@ a.kpi{text-decoration:none;color:inherit;cursor:pointer;transition:transform .12
 .appbody .tl-body>b{display:block;font-size:14px!important}.tl-dot{line-height:1;font-size:12px;padding-left:1px}.appbody .tl-body p{font-size:13px}
 .appbody .up-count .up-n{font-size:13px!important;display:inline;color:var(--text)}.appbody .up-count .linkbtn{background:none!important;border:0!important;box-shadow:none!important;padding:0!important;min-height:0!important;color:var(--cyan)!important;font-size:12px}
 
-/* ===== v8.6 Hapësira ime ===== */
+/* ===== v8.6 My workspace ===== */
 .sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 18px 18px}.sp-grid3{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:14px;padding:0 18px}
 .sp-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}.btn-sm{display:inline-block;padding:4px 10px;border:1px solid var(--line);border-radius:6px;font-size:12px;background:var(--panel2);color:var(--text);cursor:pointer;text-decoration:none}
 .sp-team{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 10px;margin:6px 0;border:1px solid var(--line);border-left:4px solid var(--cyan);border-radius:7px}.sp-team small,.sp-mine small{display:block;color:var(--muted);font-size:11px}.sp-team.arch{opacity:.55}
@@ -184,9 +184,9 @@ a.kpi{text-decoration:none;color:inherit;cursor:pointer;transition:transform .12
 .bold{font-weight:700}.adm-smtp summary .bold{font-size:17px}
 .workrow .wl-bar>i{height:100%!important;border-radius:0!important;box-shadow:none!important}.workrow .wl-bar>i.w1{background:#18a4ff!important}.workrow .wl-bar>i.w2{background:#2bd095!important}.workrow .wl-bar>i.w3{background:#a47bff!important}.workrow .wl-bar>i.w4{background:#ff9f1a!important}
 .bold{display:inline!important}
-/* v8.7.2: .card b (për numrat e KPI) nuk duhet të bëjë gjigante tekstin e theksuar në timeline, tabela dhe lista */
+/* v8.7.2: .card b styles for KPI numbers must not enlarge bold text in timelines, tables or lists */
 .card .timeline b,.card td b,.card th b,.card li b,.card p b,.card label b,.card summary b,.card .tl-body b,.card span b,.card small b{display:inline;font-size:inherit;margin:0;font-weight:700}
-/* ===== v8.9: zgjedhës përdoruesi + chat ===== */
+/* ===== v8.9: user picker and chat ===== */
 .up{position:relative;display:block}.up-input{width:100%;padding-right:30px}.up-clear{position:absolute;right:6px;top:6px;border:0;background:none;color:var(--muted);cursor:pointer;display:none;font-size:14px}.up.has .up-clear{display:block}
 .up-list{position:absolute;left:0;right:0;top:100%;z-index:3000;max-height:300px;overflow:auto;background:var(--panel2,#0f2747);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px #0009;margin-top:2px}
 .up-item{padding:8px 10px;cursor:pointer;border-bottom:1px solid var(--line)}.up-item:last-child{border-bottom:0}.up-item.on,.up-item:hover{background:#1f7ae033}.up-item b{display:block;font-size:13px;color:var(--text)}.up-item small{display:block;color:var(--muted);font-size:11px;line-height:1.35}.up-none{padding:10px;color:var(--muted);font-size:12px}.up-hint{display:block;color:var(--muted);font-size:10.5px;margin-top:2px}

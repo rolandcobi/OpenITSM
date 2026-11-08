@@ -1,4 +1,4 @@
-"""Hapësira ime: ekipe (Teams), borde Trello-style, detyra personale dhe të sektorit, dashboard performance."""
+"""Workspace teams, boards, personal and department tasks, and performance dashboards."""
 import re
 from authorization import directory_scope_sql
 from datetime import datetime, timedelta
@@ -15,7 +15,7 @@ SOURCES = ('Personal Initiative', 'Request', 'Monthly Plan', 'Assigned Task', 'O
 def init(app, D):
     db, login_required, current, audit, notify, now = D['db'], D['login_required'], D['current'], D['audit'], D['notify'], D['now']
     def after(c, fn, *a, **k):
-        c.commit(); return fn(*a, **k)   # commit para audit/notify (ato hapin lidhje të vetën → shmang 'database is locked')
+        c.commit(); return fn(*a, **k)   # Commit before audit/notify: each opens its own connection, so release the write lock first.
     def team_role(c, u, tid):
         t = c.execute('SELECT owner_id FROM teams WHERE id=?', (tid,)).fetchone()
         if not t: return None
@@ -27,7 +27,7 @@ def init(app, D):
             if u['role']=='System Administrator' or (owner and org and u['org_unit_id'] in org.scope_ids(c,owner)): return r['role']
             return None
         org = D.get('org')
-        if org is not None: return 'Viewer' if org.can_view_team(c, u, t['owner_id']) else None   # dukshmëri sipas strukturës
+        if org is not None: return 'Viewer' if org.can_view_team(c, u, t['owner_id']) else None   # visibility by organizational structure
         return 'Admin' if u['role'] in ('System Administrator', 'Central Administrator') else ('Viewer' if u['role'] in SPACE_ADMIN else None)
     def board_access(c, u, bid):
         b = c.execute('SELECT * FROM boards WHERE id=?', (bid,)).fetchone()
@@ -43,14 +43,14 @@ def init(app, D):
         x = f.get('source'); return (x if x in SOURCES else SOURCES[0]), f.get('source_ref', '').strip()[:80]
     def personal_board(c, u):
         r = c.execute('SELECT id FROM boards WHERE team_id IS NULL AND owner_id=? AND archived=0 ORDER BY id LIMIT 1', (u['id'],)).fetchone()
-        return r['id'] if r else make_board(c, None, 'Detyrat personale', u['id'])
+        return r['id'] if r else make_board(c, None, 'Personal tasks', u['id'])
     def due(s):
         s = (s or '').strip(); return s + ' 23:59:59' if re.fullmatch(r'\d{4}-\d{2}-\d{2}', s) else None
     def stats(c, tid):
         rows = c.execute('SELECT k.*,l.is_done,l.name ln,u.full_name an FROM cards k JOIN boards b ON b.id=k.board_id JOIN board_lists l ON l.id=k.list_id LEFT JOIN users u ON u.id=k.assignee_id WHERE b.team_id=? AND b.archived=0', (tid,)).fetchall()
         n = now(); S = dict(src={}, total=len(rows), done=0, overdue=0, ok=0, withdue=0, cyc=[], members={}, lists={}, unassigned=0, overdue_list=[], soon=[])
         for r in rows:
-            m = S['members'].setdefault(r['an'] or '—', dict(name=r['an'] or 'Pa caktuar', assigned=0, done=0, overdue=0, ok=0, withdue=0))
+            m = S['members'].setdefault(r['an'] or '—', dict(name=r['an'] or 'Unassigned', assigned=0, done=0, overdue=0, ok=0, withdue=0))
             S['lists'][r['ln']] = S['lists'].get(r['ln'], 0) + 1; m['assigned'] += 1; sk = r['source'] or SOURCES[0]; S['src'][sk] = S['src'].get(sk, 0) + 1
             if not r['assignee_id']: S['unassigned'] += 1
             if r['is_done']:
@@ -92,29 +92,29 @@ def init(app, D):
             back = f.get('next', ''); back = back if back.startswith('/space') else url_for('space')
             if a == 'task_add':
                 title = f.get('title', '').strip()[:200]; asg = u['id']
-                if not title: c.close(); flash('Shkruani çfarë duhet bërë.', 'danger'); return redirect(back)
+                if not title: c.close(); flash('Describe what needs to be done.', 'danger'); return redirect(back)
                 if (f.get('dest') or 'me').startswith('t:'):
                     try: _, ts_, us_ = f['dest'].split(':'); tid, uid = int(ts_), int(us_)
-                    except ValueError: c.close(); return 'Kërkesë e pavlefshme', 400
+                    except ValueError: c.close(); return 'Invalid request', 400
                     if team_role(c, u, tid) not in ('Lead', 'Admin', 'Member'): c.close(); audit('AccessDenied', 'Team', tid); return 'Access Denied', 403
                     asg = uid if uid and c.execute('SELECT 1 FROM team_members WHERE team_id=? AND user_id=?', (tid, uid)).fetchone() else None
-                    r = c.execute('SELECT id FROM boards WHERE team_id=? AND archived=0 ORDER BY id LIMIT 1', (tid,)).fetchone(); bid = r['id'] if r else make_board(c, tid, 'Detyrat e ekipit', u['id'])
+                    r = c.execute('SELECT id FROM boards WHERE team_id=? AND archived=0 ORDER BY id LIMIT 1', (tid,)).fetchone(); bid = r['id'] if r else make_board(c, tid, 'Team tasks', u['id'])
                 else: bid = personal_board(c, u)
                 l = c.execute('SELECT id FROM board_lists WHERE board_id=? ORDER BY pos,id LIMIT 1', (bid,)).fetchone()
                 c.execute('INSERT INTO cards(board_id,list_id,title,description,assignee_id,creator_id,priority,due_at,created_at,pos,source,source_ref) VALUES(?,?,?,?,?,?,?,?,?,(SELECT COALESCE(MAX(pos),0)+1 FROM cards WHERE list_id=?),?,?)', (bid, l['id'], title, f.get('description', '')[:2000], asg, u['id'], pr, due(f.get('due')), now(), l['id'], *srcref(f)))
-                if asg and asg != u['id']: after(c, notify, asg, 'Detyrë e re nga ' + u['full_name'], title[:120], url_for('space_board', bid=bid))
-                c.commit(); c.close(); flash('Detyra u shtua.', 'success'); return redirect(back)
+                if asg and asg != u['id']: after(c, notify, asg, 'New task from ' + u['full_name'], title[:120], url_for('space_board', bid=bid))
+                c.commit(); c.close(); flash('Task added.', 'success'); return redirect(back)
             if a == 'task_done':
                 k = c.execute('SELECT * FROM cards WHERE id=?', (int(f['card_id']) if (f.get('card_id') or '').isdigit() else 0,)).fetchone()
                 if not k or board_access(c, u, k['board_id'])[1] != 'write': c.close(); audit('AccessDenied', 'Card', k['id'] if k else 0); return 'Access Denied', 403
                 dl = c.execute('SELECT id FROM board_lists WHERE board_id=? AND is_done=1 ORDER BY pos LIMIT 1', (k['board_id'],)).fetchone()
                 if dl: c.execute('UPDATE cards SET list_id=?,completed_at=COALESCE(completed_at,?) WHERE id=?', (dl['id'], now(), k['id'])); c.commit()
                 c.close(); return redirect(back)
-            if not name: c.close(); flash('Emri është i detyrueshëm.', 'danger'); return redirect(url_for('space'))
+            if not name: c.close(); flash('Name is required.', 'danger'); return redirect(url_for('space'))
             if a == 'team_create':
                 col = f.get('color', ''); col = col if re.fullmatch(r'#[0-9a-fA-F]{6}', col) else '#2f7cf6'
                 tid = c.execute('INSERT INTO teams(name,description,color,owner_id,created_at) VALUES(?,?,?,?,?)', (name, f.get('description', '')[:300], col, u['id'], now())).lastrowid
-                c.execute("INSERT INTO team_members(team_id,user_id,role,added_at) VALUES(?,?, 'Lead',?)", (tid, u['id'], now())); make_board(c, tid, 'Detyrat e ekipit', u['id']); c.commit(); c.close(); audit('Create', 'Team', tid, new=name); return redirect(url_for('space_team', tid=tid))
+                c.execute("INSERT INTO team_members(team_id,user_id,role,added_at) VALUES(?,?, 'Lead',?)", (tid, u['id'], now())); make_board(c, tid, 'Team tasks', u['id']); c.commit(); c.close(); audit('Create', 'Team', tid, new=name); return redirect(url_for('space_team', tid=tid))
             if a == 'board_create':
                 bid = make_board(c, None, name, u['id']); c.commit(); c.close(); return redirect(url_for('space_board', bid=bid))
         today = now()[:10]; src = request.args.get('src', ''); src = src if src in SOURCES else ''
@@ -140,7 +140,7 @@ def init(app, D):
             if a=='add_member' and not c.execute('SELECT 1 FROM users u WHERE u.id=? AND u.active=1 AND '+scope,[uid,*args]).fetchone(): c.close(); return 'Access Denied',403
             if a == 'add_member' and c.execute('SELECT 1 FROM users WHERE id=? AND active=1', (uid,)).fetchone():
                 c.execute("INSERT OR IGNORE INTO team_members(team_id,user_id,role,added_at) VALUES(?,?, 'Member',?)", (tid, uid, now())); after(c, audit, 'AddMember', 'Team', tid, new=uid)
-                after(c, notify, uid, 'U shtuat në ekip', 'Jeni shtuar në ekipin ' + t['name'], url_for('space_team', tid=tid))
+                after(c, notify, uid, 'You were added to a team', 'You were added to team ' + t['name'], url_for('space_team', tid=tid))
             elif a == 'add_sector' and f.get('sector'):
                 for r in c.execute("SELECT u.id FROM users u WHERE u.active=1 AND u.sector=? AND u.role!='Requester' AND "+scope, [f['sector'],*args]).fetchall(): c.execute("INSERT OR IGNORE INTO team_members(team_id,user_id,role,added_at) VALUES(?,?, 'Member',?)", (tid, r['id'], now()))
                 after(c, audit, 'AddSector', 'Team', tid, new=f['sector'])
@@ -153,7 +153,7 @@ def init(app, D):
             elif a == 'team_delete' and f.get('confirm') and (t['owner_id'] == u['id'] or u['role'] in ('System Administrator', 'Central Administrator')):
                 bs = [r['id'] for r in c.execute('SELECT id FROM boards WHERE team_id=?', (tid,))]
                 for b in bs: c.execute('DELETE FROM cards WHERE board_id=?', (b,)); c.execute('DELETE FROM board_lists WHERE board_id=?', (b,))
-                c.execute('DELETE FROM boards WHERE team_id=?', (tid,)); c.execute('DELETE FROM team_members WHERE team_id=?', (tid,)); c.execute('DELETE FROM teams WHERE id=?', (tid,)); c.commit(); c.close(); audit('Delete', 'Team', tid, old=t['name']); flash('Ekipi u fshi.', 'success'); return redirect(url_for('space'))
+                c.execute('DELETE FROM boards WHERE team_id=?', (tid,)); c.execute('DELETE FROM team_members WHERE team_id=?', (tid,)); c.execute('DELETE FROM teams WHERE id=?', (tid,)); c.commit(); c.close(); audit('Delete', 'Team', tid, old=t['name']); flash('Team deleted.', 'success'); return redirect(url_for('space'))
             c.commit(); c.close(); return redirect(url_for('space_team', tid=tid))
         members = c.execute('SELECT m.role,u.id,u.full_name,u.sector,u.structure FROM team_members m JOIN users u ON u.id=m.user_id WHERE m.team_id=? ORDER BY m.role,u.full_name', (tid,)).fetchall()
         cand = c.execute("SELECT id,full_name,sector,structure FROM users WHERE active=1 AND role!='Requester' AND id NOT IN (SELECT user_id FROM team_members WHERE team_id=?) ORDER BY full_name", (tid,)).fetchall()
@@ -174,7 +174,7 @@ def init(app, D):
     @login_required
     def space_board(bid):
         u = current(); c = db(); b, mode = board_access(c, u, bid)
-        if not b: c.close(); return 'Nuk u gjet', 404
+        if not b: c.close(); return 'Not found', 404
         if not mode: c.close(); audit('AccessDenied', 'Board', bid); return 'Access Denied', 403
         team = c.execute('SELECT * FROM teams WHERE id=?', (b['team_id'],)).fetchone() if b['team_id'] else None
         people = c.execute('SELECT u.id,u.full_name FROM team_members m JOIN users u ON u.id=m.user_id WHERE m.team_id=? AND u.active=1 ORDER BY u.full_name', (b['team_id'],)).fetchall() if team else [dict(id=u['id'], full_name=u['full_name'])]
@@ -190,13 +190,13 @@ def init(app, D):
             elif a == 'list_delete' and ok_list and not c.execute('SELECT 1 FROM cards WHERE list_id=?', (lid,)).fetchone(): c.execute('DELETE FROM board_lists WHERE id=?', (lid,))
             elif a == 'card_add' and ok_list and f.get('title', '').strip():
                 kid = c.execute('INSERT INTO cards(board_id,list_id,title,description,assignee_id,creator_id,priority,due_at,created_at,completed_at,pos,source,source_ref) VALUES(?,?,?,?,?,?,?,?,?,?,(SELECT COALESCE(MAX(pos),0)+1 FROM cards WHERE list_id=?),?,?)', (bid, lid, f['title'].strip()[:200], f.get('description', '')[:2000], asg, u['id'], pr, due(f.get('due')), now(), now() if ok_list['is_done'] else None, lid, *srcref(f))).lastrowid
-                if asg and asg != u['id']: after(c, notify, asg, 'Detyrë e re në Hapësira ime', f['title'].strip()[:120] + ' (' + b['name'] + ')', url_for('space_board', bid=bid))
+                if asg and asg != u['id']: after(c, notify, asg, 'New task in My workspace', f['title'].strip()[:120] + ' (' + b['name'] + ')', url_for('space_board', bid=bid))
             elif a == 'card_update' and kid and ok_list:
                 k = c.execute('SELECT * FROM cards WHERE id=? AND board_id=?', (kid, bid)).fetchone()
                 if k:
                     comp = k['completed_at'] if ok_list['is_done'] and k['completed_at'] else (now() if ok_list['is_done'] else None)
                     c.execute('UPDATE cards SET title=?,description=?,assignee_id=?,priority=?,due_at=?,list_id=?,completed_at=?,source=?,source_ref=? WHERE id=?', (f.get('title', '').strip()[:200] or k['title'], f.get('description', '')[:2000], asg, pr, due(f.get('due')), lid, comp, *srcref(f), kid))
-                    if asg and asg != k['assignee_id'] and asg != u['id']: after(c, notify, asg, 'Detyrë e re në Hapësira ime', k['title'][:120] + ' (' + b['name'] + ')', url_for('space_board', bid=bid))
+                    if asg and asg != k['assignee_id'] and asg != u['id']: after(c, notify, asg, 'New task in My workspace', k['title'][:120] + ' (' + b['name'] + ')', url_for('space_board', bid=bid))
             elif a == 'card_delete' and kid: c.execute('DELETE FROM cards WHERE id=? AND board_id=?', (kid, bid))
             elif a == 'board_rename' and f.get('name', '').strip(): c.execute('UPDATE boards SET name=? WHERE id=?', (f['name'].strip()[:80], bid))
             elif a == 'board_delete' and b['team_id'] is None and f.get('confirm'):
@@ -210,11 +210,11 @@ def init(app, D):
     @login_required
     def space_move(kid):
         u = current(); c = db(); j = request.get_json(silent=True) or {}; k = c.execute('SELECT * FROM cards WHERE id=?', (kid,)).fetchone()
-        if not k: c.close(); return jsonify(error='Nuk u gjet'), 404
+        if not k: c.close(); return jsonify(error='Not found'), 404
         b, mode = board_access(c, u, k['board_id'])
         if mode != 'write': c.close(); audit('AccessDenied', 'Card', kid); return jsonify(error='Access Denied'), 403
         l = c.execute('SELECT * FROM board_lists WHERE id=? AND board_id=?', (j.get('list_id'), k['board_id'])).fetchone()
-        if not l: c.close(); return jsonify(error='Listë e pavlefshme'), 400
+        if not l: c.close(); return jsonify(error='Invalid list'), 400
         ids = [r['id'] for r in c.execute('SELECT id FROM cards WHERE list_id=? AND id!=? ORDER BY pos,id', (l['id'], kid))]
         try: pos = max(0, min(int(j.get('pos', len(ids))), len(ids)))
         except (TypeError, ValueError): pos = len(ids)

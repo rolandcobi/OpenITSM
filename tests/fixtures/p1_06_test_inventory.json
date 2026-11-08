@@ -3672,9 +3672,9 @@
   ],
   "baseline_test_source_sha256": {
     "tests/fixtures/historical_schemas.json": "e20bd061641b528384df2c5779f9eb100811188da188c0abe84d8832ba3a947d",
-    "tests/fixtures/p1_05_handler_contracts.json": "f52053dc21ab6e8a6f1532a4b5f9e656cceac8cfab72e4d5f36bcaeaaadc9275",
+    "tests/fixtures/p1_05_handler_contracts.json": "dd597a17320277a679776de291512caa909a24cee17a32d39eb967880f8c2e02",
     "tests/phase0_blocker_cases.py": "17c4b6d6552de1260250eeabc931003c87b2e902b596aae20ca8160a359d5157",
-    "tests/phase0_closure_cases.py": "a12c6806bee8d944cb9854bbc0cc5b122c8ddf01d72dd05fd9b13c5ff845509d",
+    "tests/phase0_closure_cases.py": "628e2a7744e66b413b29122516d59be525069ef02e10281242a04b162413942c",
     "tests/phase0_runtime_cases.py": "16a7f710954f5397ebbb248a2b72e1908dd1b00b516fdd06ba8420a1b8fc417a",
     "tests/run_phase0.py": "13dea692227fdac2381e77663484c23ea86fff86c666749c117d3c39bc604ce7",
     "tests/test_directory_edit_policy.py": "c51cd03df91a7e6f99de9f04dd5461d9cffa01e5a29efc18e7d1010b3e9fc42e",
@@ -3687,5 +3687,18 @@
     "tests/test_phase0_sql.py": "d908f490b29ef4251e1dbdf2b2be9e0d281b7a09ed879e6a6b6b70072f806d31",
     "tests/test_ticket_policy.py": "4a2217743ca088785113d20d4b8b6afa137ddb92d518be640d91fcfce7f8b540"
   },
-  "hash_normalization": "CRLF to LF only; no assertion/whitespace normalization"
+  "hash_normalization": "CRLF to LF only; no assertion/whitespace normalization",
+  "english_ui_amendment": {
+    "reason": "English export expectations and independently verified text-only handler fingerprints",
+    "source_changes": {
+      "tests/fixtures/p1_05_handler_contracts.json": {
+        "before": "f52053dc21ab6e8a6f1532a4b5f9e656cceac8cfab72e4d5f36bcaeaaadc9275",
+        "after": "dd597a17320277a679776de291512caa909a24cee17a32d39eb967880f8c2e02"
+      },
+      "tests/phase0_closure_cases.py": {
+        "before": "a12c6806bee8d944cb9854bbc0cc5b122c8ddf01d72dd05fd9b13c5ff845509d",
+        "after": "628e2a7744e66b413b29122516d59be525069ef02e10281242a04b162413942c"
+      }
+    }
+  }
 }

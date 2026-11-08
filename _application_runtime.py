@@ -42,7 +42,7 @@ def init_db():
 def now(): return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 ROLES=['System Administrator','Service Owner','Service Desk Manager','Operational Operator','Central Administrator','Local Administrator','Management','Requester','Auditor']
 GLOBAL=('System Administrator','Service Owner','Service Desk Manager','Operational Operator','Central Administrator','Management','Auditor')
-ORG=None   # vendoset nga org.init (dukshmëria sipas strukturës organizative)
+ORG=None   # set by org.init for organizational visibility
 WRITE=('System Administrator','Service Owner','Service Desk Manager','Operational Operator','Central Administrator','Local Administrator')
 PRIOS=('Low','Medium','High','Critical'); TYPES=('Service Request','Task'); FAILS={}
 TRANS={'Open':['Assigned','In Progress','Waiting','Closed'],'Assigned':['In Progress','Waiting'],'In Progress':['Waiting','Resolved'],'Waiting':['In Progress'],'Resolved':['Closed','In Progress'],'Closed':[]}
@@ -54,7 +54,7 @@ PHONE_RE=re.compile(r'^[0-9+()\-\s./]{5,30}$')
 SMTP_KEYS=['smtp_host','smtp_port','smtp_user','smtp_password','smtp_sender','smtp_from_name','smtp_security','smtp_verify','base_url']
 
 def add_business_hours(start,hours):
-    """Shton orë pune duke anashkaluar plotësisht të shtunën dhe të dielën (fundjava nuk llogaritet në SLA)."""
+    """Add working hours, excluding Saturdays and Sundays from SLA calculations."""
     cur=start; rem=timedelta(hours=hours)
     while rem>timedelta(0):
         if cur.weekday()>=5:
@@ -107,7 +107,7 @@ def scoped_service_counts(c, rows):
 def _csrf():
  if request.method=='POST':
   tok=session.get('csrf'); sent=request.form.get('csrf_token') or request.headers.get('X-CSRF')
-  if not isinstance(tok,str) or not isinstance(sent,str) or not tok or not sent or not tok.isascii() or not sent.isascii() or not secrets.compare_digest(tok,sent): return 'CSRF i pavlefshëm. Rifreskoni faqen.',403
+  if not isinstance(tok,str) or not isinstance(sent,str) or not tok or not sent or not tok.isascii() or not sent.isascii() or not secrets.compare_digest(tok,sent): return 'Invalid CSRF token. Refresh the page.',403
 @app.before_request
 def validate_mutation_input():
  if request.method!='POST': return
@@ -148,9 +148,9 @@ def finish_request_transaction(response):
 @app.errorhandler(sqlite3.IntegrityError)
 def _ie(e):
  _database.rollback()
- flash('Ekziston tashmë ose të dhëna të pavlefshme.','danger'); return redirect(safe_back(url_for('dashboard')))
+ flash('Already exists or invalid data.','danger'); return redirect(safe_back(url_for('dashboard')))
 @app.errorhandler(KeyError)
-def _ke(e): return 'Kërkesë e pavlefshme',400
+def _ke(e): return 'Invalid request',400
 def current():
  if 'cu' not in g:
   c=db(); g.cu=c.execute('SELECT * FROM users WHERE id=? AND active=1',(session.get('uid'),)).fetchone(); c.close()
@@ -173,7 +173,7 @@ def can_write(c,t):
 
 def mine_sql(a='t'):
  return (f"({a}.requester_id=? OR {a}.assignee_id=? OR {a}.created_by=? OR EXISTS(SELECT 1 FROM tasks ta1 JOIN task_assignees x1 ON x1.task_id=ta1.id WHERE ta1.ticket_id={a}.id AND x1.user_id=?) OR EXISTS(SELECT 1 FROM ticket_steps st1 WHERE st1.ticket_id={a}.id AND st1.user_id=?))",)
-TYPE_TITLES={'Incident':'Incidentet','Problem':'Problemet','Change':'Ndryshimet (Change)','Task':'Ticket-et e tipit Task','Service Request':'Kërkesat për shërbim'}
+TYPE_TITLES={'Incident':'Incidents','Problem':'Problems','Change':'Changes','Task':'Task tickets','Service Request':'Service requests'}
 def login_required(f):
  @wraps(f)
  def w(*a,**k):
@@ -182,7 +182,7 @@ def login_required(f):
   session['role']=current()['role']
   issued=session.get('issued_at')
   if not isinstance(issued,(int,float)) or issued>time.time()+30 or time.time()-issued>8*3600: session.clear(); return redirect(url_for('login'))
-  if current()['must_change'] and request.endpoint not in ('account','logout'): flash('Duhet të ndryshoni fjalëkalimin para se të vazhdoni.','danger'); return redirect(url_for('account'))
+  if current()['must_change'] and request.endpoint not in ('account','logout'): flash('You must change your password before continuing.','danger'); return redirect(url_for('account'))
   return f(*a,**k)
  return w
 
@@ -228,8 +228,8 @@ def send_email(to,subject,body,html_body=None):
     try: port=int(setting('smtp_port','25') or 25)
     except ValueError: port=25
     subject=' '.join(str(subject).split())[:200]
-    if not host: log_mail(to,subject,False,'SMTP nuk është konfiguruar.'); return False,'SMTP nuk është konfiguruar.'
-    if not to or not EMAIL_RE.match(to.strip()): log_mail(to,subject,False,'Adresë marrësi e pavlefshme.'); return False,'Adresë marrësi e pavlefshme.'
+    if not host: log_mail(to,subject,False,'SMTP is not configured.'); return False,'SMTP is not configured.'
+    if not to or not EMAIL_RE.match(to.strip()): log_mail(to,subject,False,'Invalid recipient address.'); return False,'Invalid recipient address.'
     sec=setting('smtp_security','auto'); sec=('ssl' if port==465 else 'starttls' if port==587 else 'none') if sec=='auto' else sec
     if _settings.get('ITSM_ENV')=='production' and (sec!='ssl' or setting('smtp_verify','1')!='1'): log_mail(to,subject,False,'Production SMTP requires verified implicit TLS'); return False,'Production SMTP requires verified implicit TLS'
     ctx=ssl.create_default_context()
@@ -244,42 +244,42 @@ def send_email(to,subject,body,html_body=None):
             if sec=='starttls': s.ehlo(); s.starttls(context=ctx); s.ehlo()
             if user: s.login(user,pwd)
             s.send_message(m)
-        log_mail(to,subject,True,'U dërgua'); return True,'Email u dërgua.'
+        log_mail(to,subject,True,'Sent'); return True,'Email sent.'
     except Exception as e:
         log_mail(to,subject,False,repr(e)); return False,str(e)
 
-PRIO_SQ={'Critical':'KRITIKE','High':'E LARTË','Medium':'MESATARE','Low':'E ULËT'}
+PRIO_SQ={'Critical':'CRITICAL','High':'HIGH','Medium':'MEDIUM','Low':'LOW'}
 def render_mail(title,intro,rows,desc,url,button):
     esc=html.escape
-    text=f'{title}\n{"="*len(title)}\n\n{intro}\n\n'+'\n'.join(f'{k}: {v}' for k,v in rows if v)+(f'\n\nPërshkrimi:\n{desc}' if desc else '')+f'\n\n{button}:\n{url}\n\n--\nKy është mesazh automatik nga OpenITSM. Ju lutemi mos u përgjigjni në këtë adresë.'
+    text=f'{title}\n{"="*len(title)}\n\n{intro}\n\n'+'\n'.join(f'{k}: {v}' for k,v in rows if v)+(f'\n\nDescription:\n{desc}' if desc else '')+f'\n\n{button}:\n{url}\n\n--\nThis is an automated message from OpenITSM. Please do not reply to this address.'
     tr=''.join(f'<tr><td style="padding:6px 12px;color:#5b6b7b;white-space:nowrap;border-bottom:1px solid #e6edf3">{esc(str(k))}</td><td style="padding:6px 12px;border-bottom:1px solid #e6edf3"><b>{esc(str(v))}</b></td></tr>' for k,v in rows if v)
-    d=f'<p style="margin:14px 0 4px;color:#5b6b7b">Përshkrimi</p><div style="padding:10px 12px;background:#f4f8fb;border-left:3px solid #1477e8;white-space:pre-wrap">{esc(desc)}</div>' if desc else ''
-    h=f'<div style="font-family:Segoe UI,Arial,sans-serif;font-size:14px;color:#17283a;max-width:640px"><div style="background:#0b2745;color:#fff;padding:14px 18px;border-radius:6px 6px 0 0"><b style="font-size:16px">OpenITSM</b> · Sistemi i Menaxhimit të Shërbimeve IT</div><div style="border:1px solid #dbe6ef;border-top:0;padding:18px;border-radius:0 0 6px 6px"><h2 style="margin:0 0 8px;font-size:18px">{esc(title)}</h2><p style="margin:0 0 12px">{esc(intro)}</p><table style="border-collapse:collapse;width:100%">{tr}</table>{d}<p style="margin:20px 0"><a href="{esc(url)}" style="background:#1477e8;color:#fff;padding:10px 18px;border-radius:5px;text-decoration:none;font-weight:600">{esc(button)}</a></p><p style="color:#8696a5;font-size:12px">Nëse butoni nuk hapet, kopjoni lidhjen: {esc(url)}<br>Ky është mesazh automatik nga OpenITSM. Ju lutemi mos u përgjigjni në këtë adresë.</p></div></div>'
+    d=f'<p style="margin:14px 0 4px;color:#5b6b7b">Description</p><div style="padding:10px 12px;background:#f4f8fb;border-left:3px solid #1477e8;white-space:pre-wrap">{esc(desc)}</div>' if desc else ''
+    h=f'<div style="font-family:Segoe UI,Arial,sans-serif;font-size:14px;color:#17283a;max-width:640px"><div style="background:#0b2745;color:#fff;padding:14px 18px;border-radius:6px 6px 0 0"><b style="font-size:16px">OpenITSM</b> · IT Service Management</div><div style="border:1px solid #dbe6ef;border-top:0;padding:18px;border-radius:0 0 6px 6px"><h2 style="margin:0 0 8px;font-size:18px">{esc(title)}</h2><p style="margin:0 0 12px">{esc(intro)}</p><table style="border-collapse:collapse;width:100%">{tr}</table>{d}<p style="margin:20px 0"><a href="{esc(url)}" style="background:#1477e8;color:#fff;padding:10px 18px;border-radius:5px;text-decoration:none;font-weight:600">{esc(button)}</a></p><p style="color:#8696a5;font-size:12px">If the button does not open, copy this link: {esc(url)}<br>This is an automated message from OpenITSM. Please do not reply to this address.</p></div></div>'
     return text,h
 
 def notify_actor(tid,uid,reason):
-    """Njofton (in-app + email) përgjegjësin që duhet të veprojë: reason='assigned' (caktim i parë) ose 'turn' (radha e tij në rrjedhë)."""
+    """Notify the current assignee in-app and by email: assigned for initial assignment, turn for workflow handoff."""
     c=db(); t=c.execute('SELECT t.*,s.name service,rq.full_name requester FROM tickets t LEFT JOIN services s ON s.id=t.service_id LEFT JOIN users rq ON rq.id=t.requester_id WHERE t.id=?',(tid,)).fetchone(); u=c.execute('SELECT * FROM users WHERE id=?',(uid,)).fetchone()
     steps=c.execute('SELECT st.*,x.full_name FROM ticket_steps st LEFT JOIN users x ON x.id=st.user_id WHERE st.ticket_id=? ORDER BY st.seq',(tid,)).fetchall(); c.close()
     if not t or not u: return
     url=f'{base_url()}/tickets/{tid}'; link=f'/tickets/{tid}'; me=next((x for x in steps if x['user_id']==uid and x['status']=='Active'),None)
     prio=PRIO_SQ.get(t['priority'],t['priority']); first=(reason=='assigned')
-    notify(uid,(f'Case i ri – {t["code"]}' if first else f'Radha juaj për veprim – {t["code"]}'),f'{t["title"]}: {(t["description"] or "")[:300]}',link,'ticket' if first else 'step')
+    notify(uid,(f'New ticket – {t["code"]}' if first else f'Your turn to act – {t["code"]}'),f'{t["title"]}: {(t["description"] or "")[:300]}',link,'ticket' if first else 'step')
     if not u['email']: return
-    rows=[('Ticket',t['code']),('Titulli',t['title']),('Tipi',t['type']),('Prioriteti',prio),('Shërbimi',t['service']),('Struktura',t['structure']),('Krijuar nga',t['requester']),('Afati (SLA)',t['due_at'])]
-    if len(steps)>1 and me: rows.append(('Hapi në rrjedhë',f'{me["seq"]} nga {len(steps)}'))
-    if me and me['instruction']: rows.append(('Veprimi i kërkuar',me['instruction']))
+    rows=[('Ticket',t['code']),('Title',t['title']),('Type',t['type']),('Prioriteti',prio),('Service',t['service']),('Structure',t['structure']),('Created by',t['requester']),('Due date (SLA)',t['due_at'])]
+    if len(steps)>1 and me: rows.append(('Workflow step',f'{me["seq"]} of {len(steps)}'))
+    if me and me['instruction']: rows.append(('Required action',me['instruction']))
     done=[x for x in steps if x['status']=='Done']
-    if done: rows.append(('Hapat e mëparshëm',' → '.join(f'{x["full_name"]} ({(x["signed_at"] or "")[:16]})' for x in done)))
-    if done and done[-1]['note']: rows.append(('Shënimi i hapit të fundit',done[-1]['note'][:300]))
+    if done: rows.append(('Previous steps',' → '.join(f'{x["full_name"]} ({(x["signed_at"] or "")[:16]})' for x in done)))
+    if done and done[-1]['note']: rows.append(('Last step note',done[-1]['note'][:300]))
     nxt=[x for x in steps if x['status']=='Pending']
-    if nxt: rows.append(('Hapi pasues',nxt[0]['full_name']))
-    title=('Ju është caktuar një ticket i ri' if first else 'Ticket-i pret veprimin tuaj')
-    subj=f'[OpenITSM] [{prio}] {t["code"]} – '+('Ticket i ri për ju: ' if first else 'Radha juaj për veprim: ')+t['title']
-    txt,h=render_mail(title,f'Përshëndetje {u["full_name"]}, '+('ju është caktuar ky ticket.' if first else 'ky ticket u përcoll tek ju për veprim.'),rows,(t['description'] or '')[:1500],url,'Hap ticket-in')
+    if nxt: rows.append(('Next step',nxt[0]['full_name']))
+    title=('You have been assigned a new ticket' if first else 'Ticket awaiting your action')
+    subj=f'[OpenITSM] [{prio}] {t["code"]} – '+('New ticket for you: ' if first else 'Your turn to act: ')+t['title']
+    txt,h=render_mail(title,f'Hello {u["full_name"]}, '+('this ticket has been assigned to you.' if first else 'this ticket has been passed to you for action.'),rows,(t['description'] or '')[:1500],url,'Open ticket')
     send_async(u['email'],subj,txt,h)
 def notify_closed(tid,actor_id,note=''):
-    """Kur një ticket mbyllet, njofton (in-app + email) gjithë zinxhirin: krijuesin, kërkuesin, përgjegjësin, përdoruesit e hapave dhe të detyrave."""
+    """Notify all ticket participants in-app and by email when a ticket closes."""
     c=db(); t=c.execute('SELECT t.*,s.name service FROM tickets t LEFT JOIN services s ON s.id=t.service_id WHERE t.id=?',(tid,)).fetchone()
     if not t: c.close(); return
     ids={t[k] for k in ('requester_id','created_by','assignee_id') if t[k]}
@@ -289,15 +289,15 @@ def notify_closed(tid,actor_id,note=''):
     steps=c.execute('SELECT st.*,x.full_name FROM ticket_steps st LEFT JOIN users x ON x.id=st.user_id WHERE st.ticket_id=? ORDER BY st.seq',(tid,)).fetchall()
     closer=c.execute('SELECT full_name FROM users WHERE id=?',(actor_id,)).fetchone(); c.close()
     closer=closer['full_name'] if closer else '-'; url=f'{base_url()}/tickets/{tid}'; link=f'/tickets/{tid}'; prio=PRIO_SQ.get(t['priority'],t['priority'])
-    rows=[('Ticket',t['code']),('Titulli',t['title']),('Prioriteti',prio),('Shërbimi',t['service']),('Mbyllur nga',closer),('Mbyllur më',(t['closed_at'] or '')[:16])]
-    if steps: rows.append(('Zinxhiri i hapave',' → '.join(f"{x['full_name']}"+(' ✔' if x['status']=='Done' else '') for x in steps)))
-    if note: rows.append(('Përshkrimi i mbylljes',note[:500]))
+    rows=[('Ticket',t['code']),('Title',t['title']),('Prioriteti',prio),('Service',t['service']),('Closed by',closer),('Closed at',(t['closed_at'] or '')[:16])]
+    if steps: rows.append(('Workflow chain',' → '.join(f"{x['full_name']}"+(' ✔' if x['status']=='Done' else '') for x in steps)))
+    if note: rows.append(('Completion notes',note[:500]))
     for u in users:
         if u['id']==actor_id: continue
-        notify(u['id'],f'Ticket i mbyllur – {t["code"]}',f'{t["title"]} u mbyll nga {closer}',link,'ticket')
+        notify(u['id'],f'Ticket closed – {t["code"]}',f'{t["title"]} was closed by {closer}',link,'ticket')
         if u['email']:
-            txt,h=render_mail('Ticket-i u mbyll',f'Përshëndetje {u["full_name"]}, ky ticket ku keni qenë pjesë i zinxhirit u mbyll.',rows,'',url,'Hap ticket-in')
-            send_async(u['email'],f'[OpenITSM] {t["code"]} – Ticket i mbyllur: {t["title"]}',txt,h)
+            txt,h=render_mail('Ticket closed',f'Hello {u["full_name"]}, this ticket, in which you participated, has been closed.',rows,'',url,'Open ticket')
+            send_async(u['email'],f'[OpenITSM] {t["code"]} – Ticket closed: {t["title"]}',txt,h)
 
 def notify_ticket_assignment(tid):
     c=db(); t=c.execute('SELECT assignee_id FROM tickets WHERE id=?',(tid,)).fetchone(); c.close()
@@ -308,11 +308,11 @@ def notify_task(taskid):
     if not t: return
     url=f'{base_url()}/tickets/{t["ticket_id"]}'; prio=PRIO_SQ.get(t['ticket_priority'],t['ticket_priority'])
     for u in us:
-        notify(u['id'],f'Detyrë e re – {t["title"]}',f'{t["code"]}: {t["description"] or ""}',f'/tickets/{t["ticket_id"]}','task')
+        notify(u['id'],f'New task – {t["title"]}',f'{t["code"]}: {t["description"] or ""}',f'/tickets/{t["ticket_id"]}','task')
         if u['email']:
-            rows=[('Ticket',f'{t["code"]} – {t["ticket_title"]}'),('Detyra',t['title']),('Sektori/Grupi',t['group_name']),('Prioriteti',PRIO_SQ.get(t['priority'],t['priority'])),('Afati',(t['due_at'] or '').replace('T',' '))]
-            txt,h=render_mail('Ju është caktuar një detyrë e re',f'Përshëndetje {u["full_name"]}, ju është caktuar një detyrë.',rows,(t['description'] or '')[:1500],url,'Hap ticket-in')
-            send_async(u['email'],f'[OpenITSM] [{prio}] {t["code"]} – Detyrë e re: {t["title"]}',txt,h)
+            rows=[('Ticket',f'{t["code"]} – {t["ticket_title"]}'),('Tasks',t['title']),('Sektori/Grupi',t['group_name']),('Prioriteti',PRIO_SQ.get(t['priority'],t['priority'])),('Due date',(t['due_at'] or '').replace('T',' '))]
+            txt,h=render_mail('You have been assigned a new task',f'Hello {u["full_name"]}, a task has been assigned to you.',rows,(t['description'] or '')[:1500],url,'Open ticket')
+            send_async(u['email'],f'[OpenITSM] [{prio}] {t["code"]} – New task: {t["title"]}',txt,h)
 
 def backup_once():
  if not os.path.exists(DB): return
@@ -352,7 +352,7 @@ import unicodedata as _ud
 
 
 
-# ---------------- Raporte + eksport ----------------
+# ---------------- Reports + eksport ----------------
 
 
 
@@ -364,7 +364,7 @@ def send_bulk(items):
     def run():
         for to,s,b in items:
             try: send_email(to,s,b)
-            except Exception as e: print('Email dështoi për',to,e)
+            except Exception as e: print('Email failed for',to,e)
     if items:
         _database.dispatch_after_commit(run)
 
@@ -374,7 +374,7 @@ def send_bulk(items):
 
 
 
-# ===================== v8.5.2: detyra me timeline, nën-detyra, audit log =====================
+# ===================== v8.5.2: tasks with timelines, subtasks and audit log =====================
 
 
 
@@ -389,7 +389,7 @@ TASK_ICONS={'Created':'＋','Assigned':'➜','Started':'▶','Update':'✎','Sub
 AUDIT_ROLES=('System Administrator','Central Administrator')
 
 
-# ---------------- HTTPS (certifikatë vetë-nënshkruar automatike) ----------------
+# ---------------- HTTPS (automatically generated self-signed certificate) ----------------
 CERT_DIR=os.path.join(BASE,'certs')
 def local_ips():
     ips={'127.0.0.1'}
@@ -425,7 +425,7 @@ def ensure_cert():
     try: os.chmod(key,0o600)
     except OSError: pass
     with open(cert,'wb') as f: f.write(crt.public_bytes(serialization.Encoding.PEM))
-    open(sanf,'w').write(sig); print('OpenITSM: u gjenerua certifikatë e re HTTPS për:',sig); return cert,key
+    open(sanf,'w').write(sig); print('OpenITSM: generated a new HTTPS certificate for:',sig); return cert,key
 def start_http_redirect(host,port,https_port):
     from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
     hre=re.compile(r'^(\[[0-9a-fA-F:]+\]|[A-Za-z0-9.\-]+)(:\d+)?$')
@@ -437,7 +437,7 @@ def start_http_redirect(host,port,https_port):
         def log_message(self,*a): pass
     try:
         srv=ThreadingHTTPServer((host,port),H); threading.Thread(target=srv.serve_forever,daemon=True).start(); return True
-    except OSError as e: print(f'KUJDES: ridrejtimi HTTP→HTTPS në portin {port} nuk u nis ({e}).'); return False
+    except OSError as e: print(f'WARNING: HTTP to HTTPS redirection on port {port} did not start ({e}).'); return False
 def run_server():
     tls=_settings.get('ITSM_TLS','1')!='0'; host=_settings.get('ITSM_HOST','0.0.0.0' if tls else '127.0.0.1'); http_port=int(_settings.get('PORT','5000'))
     if not tls:

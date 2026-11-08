@@ -1,0 +1,282 @@
+{
+  "candidate": "OpenITSM-rc-001",
+  "source_parent": "e4cfa322d2eaa482e56e3a71c8bce1dffe1c8202",
+  "workspace_overlay": "Owner-approved Apache-2.0 licensing plus explicit dependency locks; no application/test changes",
+  "python_profile": "Windows x64 CPython 3.14.7",
+  "files": {
+    ".env.example": "ad5a479ba1cdd2c3cf22ca89e351c980327c3acd76dd6cb57926bc3f0f8001e7",
+    ".gitignore": "6ecc317e3396cbad8272ad354ed783186c0ba9e21c2b40c9df97854a5ac21592",
+    "LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "NOTICE": "abab35584ef11b3802642b461489dc3f39e207072da44af4a0a0570b16f379bb",
+    "PHASE_0_SCOPE.md": "36bdb8705edfaa19a0f04220e28adb2d5f7bd3d76bb99004ae4205afdb745634",
+    "README.md": "66966e784e3710a6a96e63b689032c595432ed04a03956033a3fd48e6fb8d90a",
+    "RELEASE_SCOPE.md": "ee95d64cccbadcb0d3e2ec129e2a8cff758bc33a134235cf4ab0fa98b575298f",
+    "THIRD_PARTY_NOTICES.md": "6bf2d4fcbfb6abf24ce875e2858f416832d4580b67b37ffc695e06b0ed701076",
+    "_application_runtime.py": "193fc6aaa2bff8c7f3032b54e107fa1f245e861b7c74dd01909e41409bc6cae3",
+    "app.py": "b11463589b7949f09adea6054b8c97310f8a40f78454c871143a455a56e889b1",
+    "app_config.py": "9a54994550d7ec147d4435a343497e428e9713839ce8a3f5462f02b8a4d5d29b",
+    "application.py": "2800bc0974c6074f5962c15dbe4f992bb49f192557681507988697d21e500f93",
+    "authorization.py": "c65966c5af0843c16ed421d7e9cb0a626e68cdf0d5363587cd07286695417dc3",
+    "chat.py": "de2f347763a777980e9fe47f8e0bf12210f7f585e0c3b6c3bbf85816d0e1cd34",
+    "database.py": "d550182d6fe1b25f56f78bc1b52be8bbd185f8aa370f694df4edca66b38b7676",
+    "docs/P1_06_TESTING.md": "282092bb718a90f42949717c66213728359920ddd1854e4014102753dbc964f3",
+    "docs/P1_07_RUNBOOK.md": "8ccb4c3ea6e3f4f46afdc2f975ab6f625bd481d6ab7404b3873dc4381a49643c",
+    "evidence/p1-04/regression_results.json": "e11e8744cb9e9be237d8333e4eeecb854ce58735b4e4d7b41a33ea67c684e875",
+    "handler_registry.py": "d1fcb94f0dc15c8463886992d3e9eeef6904c57cfe93e5ac2737a427d9d28296",
+    "handlers/__init__.py": "f4b6eb786148b88347f8b4a43ae61237742775df0b6b723fb60c6b943945cbc3",
+    "handlers/collaboration.py": "9ae0bf4379c7b824c0cc6903e18d154e0e6132bde99670d1c9a5c442ac2af7ea",
+    "handlers/identity.py": "a25777fc9f529cb2506fc573edaa43499021e94a477680c1e9444507955e68f4",
+    "handlers/infrastructure.py": "e3dc844e705c2716d3c250edce56d9e95c29e6f5ae16627086ecaf07dd99605a",
+    "handlers/organization.py": "379af17139abd6c313b28fd03b0933b35d5a15e31a72af3e364b342ce2d38cb8",
+    "handlers/read.py": "06b90676226ecba2263e00e54521b50e8a5e48ab391897ef3ec82a7622c225d9",
+    "handlers/tickets.py": "3900e040e7d8f5358b1ce87f30e34d8948a3ae59d79b637703b559e758589b09",
+    "migration_steps.py": "aeadfbe79a95f40717d69b8587ac7fef9cb681c961940761fad80b4c6a3f6909",
+    "migrations.py": "263bb16e299f7c0f5120cb98c9c31d897866bb74993fa65dd23ba6d754518424",
+    "org.py": "6abff7d6957ac0e6cfc31f8e3a17b2856724e70eeea54f2b00948e77ea3636ce",
+    "phase0-http-results.json": "ee3b41d9f5217a5f9a75e309d2d5ef8cdc8444f7e910e651b5274c5885ee0806",
+    "phase0-test-results.txt": "a83813c1e24c85cc0bc8ab8216de6ab8ab3ad2ab751a3d47fd75ce280f529e7c",
+    "requirements-tools-windows-py314.lock": "993d9bcdf7b870dfe47f02d5cc7f1581f06192b16fe20b136fbf8d06a9d0475d",
+    "requirements-windows-py314.lock": "fd87a6dcf65f548d88c3584be90a2e1a75205e4c6cee9a844add474da9c5c09e",
+    "requirements.txt": "ec262d82ce769dc04d866a0cfd71a9988f931689516ea7d72716d83e8015f98d",
+    "schema_v1.json": "f3465ecad33c32ce4cb6e0c67e57becd72fb5ce5f46bedf09c22c80e10d97266",
+    "space.py": "1e108813b498a44f397a8bb0d9342e1ebd222a941cfa7ec19edc3a1e53b1cef4",
+    "start-linux.sh": "137c5374796a0773356b01f97546520365103886164e3eef51ce724b1a13f384",
+    "start-windows.ps1": "3a63e3b675674cd95b3ed5c79dc190d0ffcd199ac6902018e694341f5a752c91",
+    "static/alerts.js": "866efb134fabe4d857d93c3c10fc2347fd22494dcbcee405dc4893bf09e050d2",
+    "static/app.js": "d6724c1fcb31d5ae54158759a5a1d7fd8ffa180e7aa87a27057e7fc7af0d5cad",
+    "static/chat.js": "a44135c962aedb096a86378610cd503f444b73d2e5f768731138cc455f6d0cd6",
+    "static/datacenter-shield.svg": "260f6f40489a2564b66558b0ac35d3cd64ee414e3a76e2f3a71f8fbb6ba58f19",
+    "static/login.js": "10786fe92b66ee52ea3cca523d37b2cd7218174e6120e1e8b0d004a741089b6c",
+    "static/space.js": "bd5403c647de5328c68677129c3ae3e9b8b823ac5a637021666972faf5f964fc",
+    "static/style.css": "f985e5bf932dbcdd01a72aa9f9fb73e972fe41d78502cdecdc0b6b5cdfbdc594",
+    "static/tools.js": "771e805ebe76616f16403e5dc543428cef1d9015328d2be9c0d5303c3820984f",
+    "static/userpick.js": "33922a70e94e228b63fa41ea801778e2743bb8c9a981cd70e98305b1432b20cf",
+    "templates/_picker.html": "0891796d390ec4d71b89e4e9311ab538c12664544450dd28bf0b45f362135844",
+    "templates/_task_form.html": "380b6904716419fa6a7083e8d713042c64fa56452653eeb6ca602978c74d4efc",
+    "templates/_teams_panel.html": "01840e7bc25f3e10c8cd35386c9ac85458852c8fafe3f2b6f9c328620b4ce46b",
+    "templates/account.html": "904e5d97a6e2deb06e70e02aa890265d1b8cb8b440cabd5f3f30ddf301876320",
+    "templates/admin.html": "b1f7fdc1054f59dd483d1043e1fc4e7e74062994ae445b87a3e99d30a4dab95e",
+    "templates/assets.html": "3a33962429d6374873fdcd854433413cd343d83d8289194a062be23ac5feee0e",
+    "templates/audit.html": "e6f768efda6d7423ae5ae91e61e102f81f9e52df7f223cb0f1176c6413db7ef6",
+    "templates/base.html": "e43e7f449519e63aacebb3b3e49a6c6a5d061d5892285043f24e9014f505349a",
+    "templates/calendar.html": "2104dfb00eb8ddb3cad8047597a9b19e13ef4706dc6ca7536677334585451b66",
+    "templates/dashboard.html": "cad6f9b1fcecbb7257ecb9c7ea104f0d0e4e1654e6391b1a59d35316a8221769",
+    "templates/directory.html": "f00b8277c2c26418b67e94bb5f0224cb177fe4628b87d6a6bee44938a2da1f01",
+    "templates/login.html": "cd70cc20a9cabb57d04b186b9a2bab74ed0c6f9a743cc557628f445109a3d8de",
+    "templates/logout.html": "ad9cf4143f07662b540ada50b00f10050c8c36ab0c6d3d08bfb9601ab5c82a29",
+    "templates/notifications.html": "b4be1720bc37d60695892e2caeea83b92293c1151db61b40f136276d3c84641e",
+    "templates/org.html": "1f22ed2084339bdc2fa7dce75d569f4f00a36843531937f36b768556c41aaa39",
+    "templates/profile.html": "abbbae7c891961d44de8eda7a1fb4e682f18372db8f3b9c70964563ef26916f6",
+    "templates/reports.html": "3816acf468f8253e5cf8956bea0996c4a5a7323caa3190aeacf9c64e4aa5eb3a",
+    "templates/services.html": "0e4dbd7ad234d88a1c560fbd590dd526638b908744d9e8f80556d4c11eab1dbb",
+    "templates/space.html": "93a0906014047760ffc9269e87add2edc41fc0a6e97257599d446b3cf8e990a0",
+    "templates/space_board.html": "ba3f03578ad30e676ce11b8722e3ff6287c1937cde8b66ac72483d1c998b7d1d",
+    "templates/space_dash.html": "e417231c85b5eb172f233e1e7d9c9ac389761a5a838359664ba60d4c1e7685df",
+    "templates/space_team.html": "539ee75b8e6876bc0c1463338117a268d97a3a4413f5d408f4f8bcc4886ec3fa",
+    "templates/style.css": "2ab0ccd49cf6c6dcb85f6134c99e134eb5d3db87d6e13e3ab69ed3e0c0d97dc9",
+    "templates/task_detail.html": "19d3fa1411bdd0e214a986764bd9aab83ab1a7a0943c73276b82ef9b1a08b3ae",
+    "templates/tasks.html": "023feb58d11c5d21506a7344f6d525b1acc11f78592fee95b0346eaa080d7f4a",
+    "templates/ticket_detail.html": "9307c7ac0fd77df2cd195f4e3f50946371e98e0a5545659953974f6d9e2978cb",
+    "templates/ticket_form.html": "a390f4de92c9d2be1eb877618a7a9fb35d15f9731dca8772bb70c443a52c71f8",
+    "templates/tickets.html": "192d9f478e2dcde57f61e8339b135945eb7dc8b68cc3f79b31513aa42e1c738d",
+    "templates/users.html": "3548599ed4dc9d52e638199c6b52815114221f1bf8cd381c32bcd1ef1fe1bcf1",
+    "tests/fixtures/historical_schemas.json": "628fca52f06e6195907129f7fcbf7359e754c41ea1a7bd1eeffb15bf17399f58",
+    "tests/fixtures/p1_05_handler_contracts.json": "cf8af30dff8101cd15a4558eff62fa9a464abff041aa6e81c94f8464def9d0a0",
+    "tests/fixtures/p1_06_test_inventory.json": "16ab56a9d3126b1e99db861e71cad2a2f08e39a37e8b2c2522fbc94af192c393",
+    "tests/phase0_blocker_cases.py": "78172875d8b8f748e698dbb144a54220ee494481b4ad2863995a2065fd765cd2",
+    "tests/phase0_closure_cases.py": "78585ad168e0c97e36b0f9ad822dfa0ec84ee0d53ead9362f062b7a5c610be97",
+    "tests/phase0_runtime_cases.py": "142a20eff8d0232ea818f2811a8a9a6435818479aec87ad297d277a48b8e0e68",
+    "tests/run_phase0.py": "f02ab2498ce66d83219d9775c98a2fb60fa954810510114e7856612b7e94e9b0",
+    "tests/run_suites.py": "ddc39742bd1e7440c28c801add0477cbb9d5f5915469184f814513078ef3e90f",
+    "tests/suite_support.py": "7ccefbf91f2efc12db406c8140b5ce6e2351ae1607526ce54bf44338bc13b35c",
+    "tests/test_directory_edit_policy.py": "fde6330899c6f870c10e1e0661379431eb99243ccc0508edafd84a1c085b9c29",
+    "tests/test_p1_02_factory.py": "3c64fa9fcf76560b7b7619937de62ab415eb490e477f7c5890f08c13eca403fb",
+    "tests/test_p1_03_database.py": "690922680dea10a04694e484c3016b106c3d23d4f2d6f56a790483d35a2b8cb7",
+    "tests/test_p1_04_migrations.py": "719a1fb368e6bfacd649c905b36479f0342d2db5508c5b828d31dda8aec13fc9",
+    "tests/test_p1_05_handlers.py": "c6ebf9761b31a2482b1f381c1c134e6d03ed2d5f67b49a3c2f0d4a6259419053",
+    "tests/test_p1_06_runner.py": "488ae174ac1686770c675368f1dac8c10893ec8e176450ef1d514ba8fd9f6093",
+    "tests/test_phase0_http.py": "d16a5a64afbc7883c83052ce70fffd750ca3b35181bec1249468425a401901ad",
+    "tests/test_phase0_migrations.py": "84284d2788789de9db680c5177c2a6154b1ce81cd93d7e25644300fac29cc768",
+    "tests/test_phase0_sql.py": "43583bbff850091215ee1013e5ee0df54956863603ff4406bde601c388a76140",
+    "tests/test_ticket_policy.py": "598a629508bf9c5b54e739ac1e549439b19a5af6eacfc025edab2cb8ed457608"
+  },
+  "derived_documents": [
+    "README.md",
+    "RELEASE_SCOPE.md",
+    "THIRD_PARTY_NOTICES.md",
+    "docs/P1_06_TESTING.md",
+    "docs/P1_07_RUNBOOK.md"
+  ],
+  "included_test_evidence": [
+    "phase0-http-results.json",
+    "phase0-test-results.txt",
+    "evidence/p1-04/regression_results.json"
+  ],
+  "dependency_wheels_separate_not_bundled": [
+    {
+      "name": "blinker",
+      "version": "1.9.0",
+      "file": "blinker-1.9.0-py3-none-any.whl",
+      "sha256": "ba0efaa9080b619ff2f3459d1d500c57bddea4a6b424b60a91141db6fd2f08bc",
+      "tags": [
+        "py3-none-any"
+      ],
+      "pypi_url": "https://files.pythonhosted.org/packages/10/cb/f2ad4230dc2eb1a74edf38f1a38b9b52277f75bef262d8908e60d957e13c/blinker-1.9.0-py3-none-any.whl",
+      "pypi_sha256_verified": true
+    },
+    {
+      "name": "cffi",
+      "version": "2.1.1",
+      "file": "cffi-2.1.1-cp314-cp314-win_amd64.whl",
+      "sha256": "3222ba5d678f80a030e6afbcc33dc1ae5cb45facabb61cee2c7016b8432fde48",
+      "tags": [
+        "cp314-cp314-win_amd64"
+      ],
+      "pypi_url": "https://files.pythonhosted.org/packages/a7/06/1c3e01e3ba14c39f6d10bfbac52753b7e22259e38088e5cfe1d704918690/cffi-2.1.1-cp314-cp314-win_amd64.whl",
+      "pypi_sha256_verified": true
+    },
+    {
+      "name": "cheroot",
+      "version": "11.1.2",
+      "file": "cheroot-11.1.2-py3-none-any.whl",
+      "sha256": "0f6c0ba05c00fbc869fb46b1de4ec2384e1d85418ae963d3bc10ae83b688dbfa",
+      "tags": [
+        "py3-none-any"
+      ],
+      "pypi_url": "https://files.pythonhosted.org/packages/41/99/af65511a10c4212438ac52bc5e45e486e7a04d292201ad84dfd9208fe9a8/cheroot-11.1.2-py3-none-any.whl",
+      "pypi_sha256_verified": true
+    },
+    {
+      "name": "click",
+      "version": "8.5.0",
+      "file": "click-8.5.0-py3-none-any.whl",
+      "sha256": "255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360",
+      "tags": [
+        "py3-none-any"
+      ],
+      "pypi_url": "https://files.pythonhosted.org/packages/58/50/6c0d534c5f134586a8e1ba4e330569e32f057e33372ae556463212fb4cd3/click-8.5.0-py3-none-any.whl",
+      "pypi_sha256_verified": true
+    },
+    {
+      "name": "cryptography",
+      "version": "50.0.2",
+      "file": "cryptography-50.0.2-cp311-abi3-win_amd64.whl",
+      "sha256": "7afa5a6602a9f29af1f3a2965f831bae7c9d5d597b7cbb716d41ab3b7d89879c",
+      "tags": [
+        "cp311-abi3-win_amd64"
+      ],
+      "pypi_url": "https://files.pythonhosted.org/packages/9a/4f/adfc442765721292fff86d314ce385d3249d22db42295c0dd057727b60f3/cryptography-50.0.2-cp311-abi3-win_amd64.whl",
+      "pypi_sha256_verified": true
+    },
+    {
+      "name": "flask",
+      "version": "3.1.3",
+      "file": "flask-3.1.3-py3-none-any.whl",
+      "sha256": "f4bcbefc124291925f1a26446da31a5178f9483862233b23c0c96a20701f670c",
+      "tags": [
+        "py3-none-any"
+      ],
+      "pypi_url": "https://files.pythonhosted.org/packages/7f/9c/34f6962f9b9e9c71f6e5ed806e0d0ff03c9d1b0b2340088a0cf4bce09b18/flask-3.1.3-py3-none-any.whl",
+      "pypi_sha256_verified": true
+    },
+    {
+      "name": "itsdangerous",
+      "version": "2.2.0",
+      "file": "itsdangerous-2.2.0-py3-none-any.whl",
+      "sha256": "c6242fc49e35958c8b15141343aa660db5fc54d4f13a1db01a3f5891b98700ef",
+      "tags": [
+        "py3-none-any"
+      ],
+      "pypi_url": "https://files.pythonhosted.org/packages/04/96/92447566d16df59b2a776c0fb82dbc4d9e07cd95062562af01e408583fc4/itsdangerous-2.2.0-py3-none-any.whl",
+      "pypi_sha256_verified": true
+    },
+    {
+      "name": "jaraco-functools",
+      "version": "4.6.0",
+      "file": "jaraco_functools-4.6.0-py3-none-any.whl",
+      "sha256": "99e3dc0060c5cbe8fcd1cdb36258e2a65ca40f1566b2033b12abb1bb44dd3c30",
+      "tags": [
+        "py3-none-any"
+      ],
+      "pypi_url": "https://files.pythonhosted.org/packages/02/36/ecc85bc96c273dc8a11273ed4782272975e6338d4a3e9228621175edf0e3/jaraco_functools-4.6.0-py3-none-any.whl",
+      "pypi_sha256_verified": true
+    },
+    {
+      "name": "jinja2",
+      "version": "3.1.6",
+      "file": "jinja2-3.1.6-py3-none-any.whl",
+      "sha256": "85ece4451f492d0c13c5dd7c13a64681a86afae63a5f347908daf103ce6d2f67",
+      "tags": [
+        "py3-none-any"
+      ],
+      "pypi_url": "https://files.pythonhosted.org/packages/62/a1/3d680cbfd5f4b8f15abc1d571870c5fc3e594bb582bc3b64ea099db13e56/jinja2-3.1.6-py3-none-any.whl",
+      "pypi_sha256_verified": true
+    },
+    {
+      "name": "markupsafe",
+      "version": "3.0.4",
+      "file": "markupsafe-3.0.4-cp314-cp314-win_amd64.whl",
+      "sha256": "c1bc67752d5f21013cfe430df4062441714eab79f65a6a05e01505957e9c35fe",
+      "tags": [
+        "cp314-cp314-win_amd64"
+      ],
+      "pypi_url": "https://files.pythonhosted.org/packages/80/f0/5792ff768a410f93ee3f84fc19345295ffc352d2c936b424cb37e514714c/markupsafe-3.0.4-cp314-cp314-win_amd64.whl",
+      "pypi_sha256_verified": true
+    },
+    {
+      "name": "more-itertools",
+      "version": "11.2.1",
+      "file": "more_itertools-11.2.1-py3-none-any.whl",
+      "sha256": "35a7377edd1dd6608dcb2cdf534ded55ea32d49448875ad042cd3f879fb1ded0",
+      "tags": [
+        "py3-none-any"
+      ],
+      "pypi_url": "https://files.pythonhosted.org/packages/5d/57/3c4b1c6f2e0cc29ba023802458ea3d2a996f87085559e4a5f2192d549532/more_itertools-11.2.1-py3-none-any.whl",
+      "pypi_sha256_verified": true
+    },
+    {
+      "name": "pip",
+      "version": "26.3",
+      "file": "pip-26.3-py3-none-any.whl",
+      "sha256": "f3b60b20ffaadd4415ed7957212a38ac63fa4c5fa375bd0f4a797777940fad13",
+      "tags": [
+        "py3-none-any"
+      ],
+      "pypi_url": "https://files.pythonhosted.org/packages/07/25/ee8c38ae72d66b844ce8eb9711ba905dba21ca1a8a0c960057c41cd23337/pip-26.3-py3-none-any.whl",
+      "pypi_sha256_verified": true
+    },
+    {
+      "name": "pycparser",
+      "version": "3.12",
+      "file": "pycparser-3.12-py3-none-any.whl",
+      "sha256": "a076f3f489b39b43ed13563a1dafe42447445bec2e294154ec5c57fcdda4c85e",
+      "tags": [
+        "py3-none-any"
+      ],
+      "pypi_url": "https://files.pythonhosted.org/packages/b6/ae/315bbeee126a769cbde43cf4908acb4b40408d8bf8bbf334dd7368d8dadf/pycparser-3.12-py3-none-any.whl",
+      "pypi_sha256_verified": true
+    },
+    {
+      "name": "waitress",
+      "version": "3.0.2",
+      "file": "waitress-3.0.2-py3-none-any.whl",
+      "sha256": "c56d67fd6e87c2ee598b76abdd4e96cfad1f24cacdea5078d382b1f9d7b5ed2e",
+      "tags": [
+        "py3-none-any"
+      ],
+      "pypi_url": "https://files.pythonhosted.org/packages/8d/57/a27182528c90ef38d82b636a11f606b0cbb0e17588ed205435f8affe3368/waitress-3.0.2-py3-none-any.whl",
+      "pypi_sha256_verified": true
+    },
+    {
+      "name": "werkzeug",
+      "version": "3.1.9",
+      "file": "werkzeug-3.1.9-py3-none-any.whl",
+      "sha256": "6392e50c78460ba618e5b21f08a71f59c99ce99cdc6cf6e3dd7e6ccca8754fab",
+      "tags": [
+        "py3-none-any"
+      ],
+      "pypi_url": "https://files.pythonhosted.org/packages/a1/38/df03f564f43cec2684823f3cccae1a652ee7face1cbaa76fb223096e64d7/werkzeug-3.1.9-py3-none-any.whl",
+      "pypi_sha256_verified": true
+    }
+  ]
+}

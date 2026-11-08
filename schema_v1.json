@@ -1,0 +1,329 @@
+{
+  "origin_commit": "9f8fef0ed9fae2ef68da27a7a80eabc7254fa044",
+  "user_version": 1,
+  "tables": {
+    "users": [
+      "id",
+      "username",
+      "password_hash",
+      "full_name",
+      "email",
+      "role",
+      "structure",
+      "sector",
+      "active",
+      "auth_version",
+      "failed",
+      "locked_until",
+      "must_change",
+      "can_infra",
+      "phone",
+      "institution",
+      "duty",
+      "profile_done",
+      "org_unit_id",
+      "org_head"
+    ],
+    "support_groups": [
+      "id",
+      "name",
+      "description"
+    ],
+    "services": [
+      "id",
+      "name",
+      "category",
+      "status",
+      "owner_id",
+      "parent_service_id",
+      "is_main",
+      "unit_id"
+    ],
+    "assets": [
+      "id",
+      "name",
+      "asset_type",
+      "hostname",
+      "ip_address",
+      "service_id",
+      "structure",
+      "location",
+      "owner_id",
+      "criticality",
+      "status",
+      "notes",
+      "created_at",
+      "unit_id"
+    ],
+    "tickets": [
+      "id",
+      "code",
+      "type",
+      "title",
+      "description",
+      "category",
+      "service_id",
+      "structure",
+      "priority",
+      "status",
+      "requester_id",
+      "assignee_id",
+      "created_by",
+      "created_at",
+      "due_at",
+      "resolved_at",
+      "closed_at",
+      "resolution_note",
+      "unit_id"
+    ],
+    "tasks": [
+      "id",
+      "ticket_id",
+      "title",
+      "description",
+      "group_id",
+      "priority",
+      "status",
+      "due_at",
+      "created_at",
+      "completed_at",
+      "completion_notes",
+      "parent_id",
+      "created_by",
+      "started_at"
+    ],
+    "task_assignees": [
+      "task_id",
+      "user_id"
+    ],
+    "timeline": [
+      "id",
+      "ticket_id",
+      "actor_id",
+      "event_type",
+      "details",
+      "created_at"
+    ],
+    "audit": [
+      "id",
+      "actor_id",
+      "action",
+      "object_type",
+      "object_id",
+      "old_value",
+      "new_value",
+      "ip",
+      "created_at"
+    ],
+    "settings": [
+      "key",
+      "value"
+    ],
+    "login_attempts": [
+      "ip",
+      "attempted_at"
+    ],
+    "notifications": [
+      "id",
+      "user_id",
+      "title",
+      "message",
+      "link",
+      "kind",
+      "is_read",
+      "created_at"
+    ],
+    "ticket_steps": [
+      "id",
+      "ticket_id",
+      "seq",
+      "user_id",
+      "instruction",
+      "status",
+      "note",
+      "signed_by",
+      "signed_at",
+      "activated_at",
+      "created_at"
+    ],
+    "email_log": [
+      "id",
+      "to_addr",
+      "subject",
+      "ok",
+      "message",
+      "created_at"
+    ],
+    "task_events": [
+      "id",
+      "task_id",
+      "actor_id",
+      "event_type",
+      "details",
+      "created_at"
+    ],
+    "announcements": [
+      "id",
+      "title",
+      "message",
+      "kind",
+      "created_by",
+      "created_at",
+      "active"
+    ],
+    "org_units": [
+      "id",
+      "parent_id",
+      "name",
+      "kind",
+      "sort"
+    ],
+    "chat_messages": [
+      "id",
+      "from_id",
+      "to_id",
+      "body",
+      "created_at",
+      "read_at"
+    ],
+    "teams": [
+      "id",
+      "name",
+      "description",
+      "color",
+      "owner_id",
+      "created_at"
+    ],
+    "team_members": [
+      "team_id",
+      "user_id",
+      "role",
+      "added_at"
+    ],
+    "boards": [
+      "id",
+      "team_id",
+      "name",
+      "owner_id",
+      "created_at",
+      "archived"
+    ],
+    "board_lists": [
+      "id",
+      "board_id",
+      "name",
+      "pos",
+      "is_done"
+    ],
+    "cards": [
+      "id",
+      "board_id",
+      "list_id",
+      "title",
+      "description",
+      "assignee_id",
+      "creator_id",
+      "priority",
+      "due_at",
+      "created_at",
+      "completed_at",
+      "pos",
+      "source",
+      "source_ref"
+    ]
+  },
+  "objects": {
+    "ix_login_attempts": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_login_attempts ON login_attempts(ip,attempted_at)"
+    },
+    "idx_task_events": {
+      "type": "index",
+      "sql": "CREATE INDEX idx_task_events ON task_events(task_id)"
+    },
+    "ix_tk_status": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_tk_status ON tickets(status,created_at)"
+    },
+    "ix_tk_assignee": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_tk_assignee ON tickets(assignee_id,status)"
+    },
+    "ix_tk_requester": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_tk_requester ON tickets(requester_id)"
+    },
+    "ix_tk_due": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_tk_due ON tickets(due_at)"
+    },
+    "ix_tk_service": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_tk_service ON tickets(service_id)"
+    },
+    "ix_tl_ticket": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_tl_ticket ON timeline(ticket_id,id)"
+    },
+    "ix_tasks_ticket": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_tasks_ticket ON tasks(ticket_id,status)"
+    },
+    "ix_ta_user": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_ta_user ON task_assignees(user_id)"
+    },
+    "ix_steps_ticket": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_steps_ticket ON ticket_steps(ticket_id,seq)"
+    },
+    "ix_steps_user": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_steps_user ON ticket_steps(user_id,status)"
+    },
+    "ix_notif_user": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_notif_user ON notifications(user_id,is_read,id)"
+    },
+    "audit_nu": {
+      "type": "trigger",
+      "sql": "CREATE TRIGGER audit_nu BEFORE UPDATE ON audit BEGIN SELECT RAISE(ABORT,'audit është i pandryshueshëm'); END"
+    },
+    "audit_nd": {
+      "type": "trigger",
+      "sql": "CREATE TRIGGER audit_nd BEFORE DELETE ON audit BEGIN SELECT RAISE(ABORT,'audit është i pandryshueshëm'); END"
+    },
+    "ix_tk_unit": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_tk_unit ON tickets(unit_id)"
+    },
+    "ix_users_unit": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_users_unit ON users(org_unit_id)"
+    },
+    "ix_assets_unit": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_assets_unit ON assets(unit_id)"
+    },
+    "ix_chat_to": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_chat_to ON chat_messages(to_id,id)"
+    },
+    "ix_chat_pair": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_chat_pair ON chat_messages(from_id,to_id,id)"
+    },
+    "ix_cards_b": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_cards_b ON cards(board_id,list_id)"
+    },
+    "ix_cards_a": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_cards_a ON cards(assignee_id)"
+    },
+    "ix_boards_t": {
+      "type": "index",
+      "sql": "CREATE INDEX ix_boards_t ON boards(team_id)"
+    }
+  }
+}

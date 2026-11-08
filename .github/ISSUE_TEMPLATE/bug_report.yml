@@ -1,0 +1,92 @@
+{
+  "name": "Bug report",
+  "description": "Report a reproducible, non-sensitive application problem.",
+  "title": "[Bug]: ",
+  "body": [
+    {
+      "type": "markdown",
+      "attributes": {
+        "value": "For security vulnerabilities, read SECURITY.md at the repository root and use the verified private route when available. Do not include secrets, real databases, organizational records or unfixed exploit details here."
+      }
+    },
+    {
+      "type": "input",
+      "id": "version",
+      "attributes": {
+        "label": "Version or candidate",
+        "description": "Specify the candidate, tag or commit you evaluated."
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "environment",
+      "attributes": {
+        "label": "Evaluation environment",
+        "description": "Operating system, Python version, browser and installation method. Do not include private hostnames or account details."
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "reproduction",
+      "attributes": {
+        "label": "Synthetic reproduction",
+        "description": "Provide the smallest reproducible steps using invented data."
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "expected",
+      "attributes": {
+        "label": "Expected behavior"
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "actual",
+      "attributes": {
+        "label": "Actual behavior"
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "diagnostics",
+      "attributes": {
+        "label": "Sanitized diagnostics",
+        "description": "Optional relevant output only. Remove tokens, passwords, local user paths and personal or organization information.",
+        "render": "text"
+      }
+    },
+    {
+      "type": "checkboxes",
+      "id": "checks",
+      "attributes": {
+        "label": "Before submitting",
+        "options": [
+          {
+            "label": "This is not a vulnerability report and contains no secrets, personal data or real site records.",
+            "required": true
+          },
+          {
+            "label": "I have checked the documentation and existing issues.",
+            "required": true
+          }
+        ]
+      }
+    }
+  ]
+}

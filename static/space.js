@@ -1,0 +1,6 @@
+(function(){var t=document.getElementById('spb');if(!t)return;var tok=t.dataset.csrf;
+document.querySelectorAll('.sp-card[draggable=true]').forEach(function(c){c.addEventListener('dragstart',function(e){e.dataTransfer.setData('text/plain',c.dataset.id);c.classList.add('drag')});c.addEventListener('dragend',function(){c.classList.remove('drag')})});
+document.querySelectorAll('.sp-cards').forEach(function(col){col.addEventListener('dragover',function(e){e.preventDefault();col.classList.add('over')});col.addEventListener('dragleave',function(){col.classList.remove('over')});
+col.addEventListener('drop',function(e){e.preventDefault();col.classList.remove('over');var id=e.dataTransfer.getData('text/plain'),cs=[].slice.call(col.querySelectorAll('.sp-card:not(.drag)')),pos=cs.length;
+for(var i=0;i<cs.length;i++){var r=cs[i].getBoundingClientRect();if(e.clientY<r.top+r.height/2){pos=i;break}}
+fetch('/space/card/'+id+'/move',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF':tok},body:JSON.stringify({list_id:+col.dataset.list,pos:pos})}).then(function(r){if(r.ok)location.reload();else alert('Zhvendosja dështoi')})})})})();

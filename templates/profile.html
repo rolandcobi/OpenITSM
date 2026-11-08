@@ -1,0 +1,10 @@
+{% extends 'base.html' %}{% block content %}<div class="page-title"><div><h2>Profili im — plotësimi i të dhënave</h2><p>Këto të dhëna shfaqen në Listën e Administratorëve dhe email-i përdoret për njoftimet automatike të ticket-eve.</p></div></div>
+<section class="card" style="max-width:760px"><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><table class="profile-table">
+<tr><th>Username</th><td>{{u.username}}</td></tr><tr><th>Roli</th><td>{{u.role}}</td></tr><tr><th>Structure</th><td>{{u.structure or '—'}} <small>(ndryshohet vetëm nga administratori)</small></td></tr>
+<tr><th><label for="pf_name">Emër Mbiemër *</label></th><td><input id="pf_name" name="full_name" value="{{u.full_name or ''}}" required maxlength="100"></td></tr>
+<tr><th><label for="pf_email">Adresa email *</label></th><td><input id="pf_email" type="email" name="email" value="{{u.email or ''}}" required maxlength="120"><small>Këtu do t’ju vijnë njoftimet kur ju caktohet një case.</small></td></tr>
+<tr><th><label for="pf_phone">Celular *</label></th><td><input id="pf_phone" name="phone" value="{{u.phone or ''}}" required inputmode="tel" maxlength="40"></td></tr>
+<tr><th><label for="pf_inst">Rep. Ushtarak / Institucioni *</label></th><td><input id="pf_inst" name="institution" value="{{u.institution or ''}}" required maxlength="150"></td></tr>
+<tr><th><label for="pf_duty">Detyra *</label></th><td><input id="pf_duty" name="duty" value="{{u.duty or ''}}" required maxlength="150" placeholder="{{u.sector or ''}}"></td></tr>
+<tr><th><label for="pf_sector">Departmenti</label></th><td><input id="pf_sector" name="sector" value="{{u.sector or ''}}" maxlength="100"></td></tr></table>
+<div class="fa-modal-actions"><button class="btn">Save të dhënat</button></div></form>{% if not u.profile_done %}<form method="post" class="skipform"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="skip"><button class="btn ghost">Plotëso më vonë</button></form>{% endif %}</section>{% endblock %}

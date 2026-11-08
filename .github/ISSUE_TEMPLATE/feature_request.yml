@@ -1,0 +1,65 @@
+{
+  "name": "Feature request",
+  "description": "Describe a use case and the behavior that would help.",
+  "title": "[Feature]: ",
+  "body": [
+    {
+      "type": "markdown",
+      "attributes": {
+        "value": "Describe organizational needs with synthetic examples. A request is not a delivery commitment or approval to widen security permissions."
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "problem",
+      "attributes": {
+        "label": "Problem or use case",
+        "description": "Who needs this capability, and what cannot be done today? Avoid real organizational or personal records."
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "proposal",
+      "attributes": {
+        "label": "Proposed behavior"
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "security",
+      "attributes": {
+        "label": "Permission and data considerations",
+        "description": "Describe affected roles, object/unit boundaries, stored data and compatibility. Do not disclose an unfixed vulnerability here; use SECURITY.md."
+      },
+      "validations": {
+        "required": true
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "alternatives",
+      "attributes": {
+        "label": "Alternatives considered"
+      }
+    },
+    {
+      "type": "checkboxes",
+      "id": "checks",
+      "attributes": {
+        "label": "Before submitting",
+        "options": [
+          {
+            "label": "This request contains no secrets, private records or vulnerability details.",
+            "required": true
+          }
+        ]
+      }
+    }
+  ]
+}

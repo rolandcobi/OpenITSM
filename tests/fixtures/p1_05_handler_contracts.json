@@ -1,0 +1,514 @@
+{
+  "origin_commit": "de6a8d6e982236cda8267f0f439bdb4746212ab3",
+  "groups": {
+    "read": [
+      "workload_rows",
+      "_norm",
+      "api_users_search",
+      "dashboard",
+      "tickets",
+      "tasks_view",
+      "calendar",
+      "_rep_filters",
+      "_csv_safe",
+      "_sla_label",
+      "export_tickets",
+      "export_tasks",
+      "export_summary",
+      "_col",
+      "make_xlsx",
+      "reports",
+      "export_report",
+      "notifications",
+      "api_poll",
+      "audit_scope",
+      "_audit_query",
+      "_audit_guard",
+      "audit_view",
+      "audit_export"
+    ],
+    "tickets": [
+      "create_chain",
+      "handle_step",
+      "new_ticket",
+      "ticket_detail",
+      "status_path",
+      "group_options",
+      "task_event",
+      "safe_back",
+      "create_task",
+      "after_task_created",
+      "load_task",
+      "task_detail",
+      "complete_task",
+      "task_do"
+    ],
+    "infrastructure": [
+      "assets",
+      "services"
+    ],
+    "identity": [
+      "login",
+      "logout",
+      "pw_ok",
+      "manager_required",
+      "account",
+      "users_admin",
+      "admin",
+      "test_email",
+      "directory",
+      "profile",
+      "notifications_read"
+    ]
+  },
+  "runtime_symbols": [
+    "ASSET_ROLES",
+    "AUDIT_INSERT",
+    "AUDIT_ROLES",
+    "BACKUPS",
+    "BASE",
+    "CERT_DIR",
+    "DB",
+    "DEFAULT_SENDER",
+    "DIR_EDIT",
+    "DUMMY_PASSWORD_HASH",
+    "Database",
+    "EMAIL_RE",
+    "EXPORTERS",
+    "EmailMessage",
+    "FAILS",
+    "Flask",
+    "GLOBAL",
+    "MANAGERS",
+    "ORG",
+    "PALETTE",
+    "PHONE_RE",
+    "PRIOS",
+    "PRIO_SQ",
+    "Path",
+    "ROLES",
+    "RequestConnection",
+    "Response",
+    "SMTP_KEYS",
+    "STAFF_ROLES",
+    "TASK_ICONS",
+    "TRANS",
+    "TYPES",
+    "TYPE_TITLES",
+    "WRITE",
+    "_D",
+    "_audit_guard",
+    "_audit_query",
+    "_backup_dir",
+    "_chat",
+    "_col",
+    "_csrf",
+    "_csrfctx",
+    "_csv_safe",
+    "_database",
+    "_fernet",
+    "_hdr",
+    "_ie",
+    "_ke",
+    "_norm",
+    "_org",
+    "_rep_filters",
+    "_secret_key",
+    "_settings",
+    "_sla_label",
+    "_space",
+    "_testing",
+    "_ud",
+    "abort",
+    "account",
+    "add_business_hours",
+    "admin",
+    "after_task_created",
+    "api_poll",
+    "api_users_search",
+    "app",
+    "asset_scope_sql",
+    "assets",
+    "audit",
+    "audit_export",
+    "audit_scope",
+    "audit_view",
+    "backup_once",
+    "backup_worker",
+    "base64",
+    "base_url",
+    "calendar",
+    "can_delegate_user",
+    "can_view",
+    "can_write",
+    "check_password_hash",
+    "close_request_connections",
+    "cols",
+    "commit_request_connection",
+    "complete_task",
+    "create_chain",
+    "create_task",
+    "csv",
+    "ctx",
+    "current",
+    "dashboard",
+    "datetime",
+    "db",
+    "dec_secret",
+    "directory",
+    "directory_can_edit_target",
+    "directory_scope_sql",
+    "enc_secret",
+    "ensure_cert",
+    "event",
+    "export_report",
+    "export_summary",
+    "export_tasks",
+    "export_tickets",
+    "finish_request_transaction",
+    "flash",
+    "flask_configuration",
+    "formataddr",
+    "formatdate",
+    "g",
+    "generate_password_hash",
+    "group_options",
+    "handle_step",
+    "has_request_context",
+    "hashlib",
+    "html",
+    "init_db",
+    "invalid_value",
+    "io",
+    "ipaddress",
+    "jsonify",
+    "load_task",
+    "local_ips",
+    "log_mail",
+    "login",
+    "login_required",
+    "logout",
+    "make_msgid",
+    "make_xlsx",
+    "manager_required",
+    "mine_sql",
+    "new_ticket",
+    "notifications",
+    "notifications_read",
+    "notify",
+    "notify_actor",
+    "notify_closed",
+    "notify_task",
+    "notify_ticket_assignment",
+    "now",
+    "os",
+    "pdt",
+    "preflight_db",
+    "profile",
+    "pw_ok",
+    "re",
+    "redirect",
+    "render_mail",
+    "render_template",
+    "reports",
+    "request",
+    "run_server",
+    "safe_back",
+    "scoped_service_counts",
+    "secrets",
+    "send_async",
+    "send_bulk",
+    "send_email",
+    "service_read_scope_sql",
+    "service_write_scope_sql",
+    "services",
+    "session",
+    "setting",
+    "shutil",
+    "smtplib",
+    "socket",
+    "space_summary_",
+    "sqlite3",
+    "ssl",
+    "start_http_redirect",
+    "status_path",
+    "task_detail",
+    "task_do",
+    "task_event",
+    "tasks_view",
+    "test_email",
+    "threading",
+    "ticket_detail",
+    "ticket_scope_sql",
+    "tickets",
+    "time",
+    "timedelta",
+    "timezone",
+    "url_for",
+    "urlparse",
+    "users_admin",
+    "validate_mutation_input",
+    "vis_ticket_sql",
+    "visible_services",
+    "visible_users",
+    "workload_rows",
+    "wraps",
+    "zipfile"
+  ],
+  "core_routes": [
+    {
+      "path": "/login",
+      "endpoint": "login",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/logout",
+      "endpoint": "logout",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/users/search",
+      "endpoint": "api_users_search",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/",
+      "endpoint": "dashboard",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/tickets",
+      "endpoint": "tickets",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/tickets/new",
+      "endpoint": "new_ticket",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/tickets/<int:tid>",
+      "endpoint": "ticket_detail",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/tasks",
+      "endpoint": "tasks_view",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/assets",
+      "endpoint": "assets",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/calendar",
+      "endpoint": "calendar",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/reports",
+      "endpoint": "reports",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/reports/export/<kind>/<fmt>",
+      "endpoint": "export_report",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/notifications",
+      "endpoint": "notifications",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/notifications/read",
+      "endpoint": "notifications_read",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/services",
+      "endpoint": "services",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/account",
+      "endpoint": "account",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/users",
+      "endpoint": "users_admin",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/admin",
+      "endpoint": "admin",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/admin/test-email",
+      "endpoint": "test_email",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/directory",
+      "endpoint": "directory",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/profile",
+      "endpoint": "profile",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/poll",
+      "endpoint": "api_poll",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/tasks/<int:taskid>",
+      "endpoint": "task_detail",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/tasks/<int:taskid>/complete",
+      "endpoint": "complete_task",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/tasks/<int:taskid>/do",
+      "endpoint": "task_do",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/audit",
+      "endpoint": "audit_view",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/audit/export/<fmt>",
+      "endpoint": "audit_export",
+      "methods": [
+        "GET"
+      ]
+    }
+  ],
+  "function_ast_sha256": {
+    "workload_rows": "730e3bf7875204fae45512f9d5b7916c96b1f5c034663f8e5adffe1b4977e329",
+    "_norm": "bc4ce0b2adb0757dc63b3d1250084ba393f539e8875ec214177a7d54e042f2f1",
+    "api_users_search": "d3c6922b880e8adc7b70a8630d3dd04806009fd1838a7e5754410f328bd2565d",
+    "dashboard": "57ee5ec2d9646d7f20becf29d6f5346a577eeb429996c907ab88a74febf359cf",
+    "tickets": "3ebb53a37d1d2a589d181fc955caaa3c525f5dc5b160d97711eadf207b6ce356",
+    "tasks_view": "c796c9b612909c21f15dfca14de332e956ea0d69fd085369f2db4d9f533b6ffe",
+    "calendar": "25f3c77acff3e5f92f4e80a0b63feaa311d8934a41e99da56b030d8410dc9915",
+    "_rep_filters": "b262eb1dffcdca52519be6e1687dfb9d1bb40a4478b0add51fccd416340b4b85",
+    "_csv_safe": "01b4ea447f12f2e8123082fcebdb881b43fd36a0e4e9b562b4a5e707a60eb4a8",
+    "_sla_label": "611f52e13a83774f2ae46e3b7799069305a2d67e98ca433bc403501c7080760b",
+    "export_tickets": "cab9987bda43d00a788c5bef8cdd3584e15b8646bc6d4a93f6aca8bbc92e65f7",
+    "export_tasks": "60f25ee7bb7fce90ea8f60875b0f6dc3dd5f5587460289d5ac7d1d1dcd464185",
+    "export_summary": "61e7cf93d32325c11c11e3ccac98da9befb23dd59ea89372528e16ffa712d1c4",
+    "_col": "a35d03b94f40cd4ca2ec05dba0cb369bb590ff192d37a1de21b5d889ecca255b",
+    "make_xlsx": "eea250bc60d6219d2b5bda4ae8f8ae34f73a2ddaf30d7ff4e414e9a0c0fd177e",
+    "reports": "5d86898126ab45e9d3ea80ad743f1604797c726c48ab48bee373d03a78f3743a",
+    "export_report": "d014120367c5bf4a9d25a70e79a1e1a01054abcd4e1e96daf667b6b6f736987c",
+    "notifications": "1c1939e2f9faaf79993ffa878157879b21aa78449b5bec823001a6a040380f8c",
+    "api_poll": "2499615868db7aea271fc6af32fbd526ebc0e60cfa1deb29e05753ac8c511d59",
+    "audit_scope": "e26a61e71bb00b1dd3fba0f01bf6256118c40b954af9c087667943db767b965e",
+    "_audit_query": "63cd3855c483c079a4d1f7dfc6b8102a4ed8f496e49a0d3fd24c30fdffbc88ea",
+    "_audit_guard": "8209ca5b248b7e31e22e87213fdaeb44a16c6b759af5a2920c5856eef7b9b083",
+    "audit_view": "ad54e0dc1f9a7df4964b8dda08221c65bd5428c1870fb98f1c37262cf6f962ae",
+    "audit_export": "f529ca30ec590338d9a88b7cbb933282c2744c121bdfea93e1fd0894ea076cdb",
+    "create_chain": "100aaded986826cd9c9ab3fd936c0e3b9fb84a92c8672339438d2107f617347b",
+    "handle_step": "e9ab4cbd5a45149cc3aad1a56631954d7d49ac23a6db16ba6c6e732b13cb5b2a",
+    "new_ticket": "776549d88a60ec4f70489c1f4030a08d72f0e79f9f4b02784a3fc6c7948287ea",
+    "ticket_detail": "67e3e7d7f56d8fb4961bcc216864dda41f09f2b1bc1f57a47395d12bf6464a17",
+    "status_path": "8342cb533a205e449de0e74d5009765fea12f45072bc0112a19397be5110abfe",
+    "group_options": "bac987a88a72033d699da21efdd0cf6b874615c3daac3ae4d7f585609d4077ab",
+    "task_event": "004d7cd8b46bd791f96a0042f0f8d682bfca6818c46ef340691cd4e31a1f685d",
+    "safe_back": "09892a808d8bfe730ebac8c8b72f64f37c98475af836f39e95cbeccad65f40b7",
+    "create_task": "4c849e9aea09e9967daf80fa271c17674a285e60741e4f661d13fcf4de42246f",
+    "after_task_created": "260150db4fb238f334d7f19a9a4f59d3219216b9082b5847ab0a4fe236bb084b",
+    "load_task": "5787d18b0dc59ae1bc2d2c23a615d16fb20803f82c9e61779e492da4c09eb523",
+    "task_detail": "d510b02765c95e6bce62c8dda10397b9d090a1fa6d7e4d257dc2b5f0129d2168",
+    "complete_task": "23beea1fe8c66e672ae66dee80fefb3653b9e3e0e28f297cdded1008d8c46d94",
+    "task_do": "4df7e83b5a82b37bca0230935e9843b5bf5be20f598de6242376a16a0db7ec83",
+    "assets": "6cfd68056608cc44614a4630808c11693911272624243e04fb159144b8fd1f8c",
+    "services": "03cb3550951d942416e5466edab66e79a9fbaeab17950a7d56bac15f35e1d2c8",
+    "login": "14e29a4d49f3ef613f7f9ad7733b31f2639e056f922a5869fd37efbcaea93a2b",
+    "logout": "fb3a5cb2ee441d9b5ec3da9f016c17d6522f1fa3ef9a06b366ea9c0c28c5823c",
+    "pw_ok": "b102b08eff8bfcdd7291fa24a6f0e5422e7b2419beb2071fb0f438a05e5ace21",
+    "manager_required": "34041ae6d28e95d81d466ed7c1209e67cee83073e7709be93cbf93bce3db53c5",
+    "account": "69d7a74cd0f1f1e77a288d48cae23fcb9321744c82c226493b35be696180876a",
+    "users_admin": "e00a4673054001e0d3f6d628b504091dc49ca579c3cf6a957f1b934a478f51fc",
+    "admin": "d91f9028a0a749f985cbf0347bcd2425d7fe43b053b5324381279d9d39a8a85b",
+    "test_email": "7aa01e7d3b9ed679d349ece5144901e19f07e50eeaed0963bd5ea5af65591f89",
+    "directory": "08c40cbce9c181fd191e4424db3c73819574dd8aa1fe4d6d23db47702be97013",
+    "profile": "89ffc4b9807cb7f179ea6cfd7b925e52d46f783b47137c32b52cfeda3b1f2439",
+    "notifications_read": "b7709b7fdc16a6f8a5cf687dbd06ecf74124a828fed2075c14e3c026da8b4e33"
+  },
+  "exporters_ast_sha256": "1de30dd4ddf1ae9e32d957e3f8abba8078bf5cbd28a54fc9b8db2b056923333a"
+}

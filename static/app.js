@@ -1,0 +1,1 @@
+(()=>{const b=document.documentElement,btn=document.getElementById('themeBtn');let t=localStorage.getItem('openitsm-theme')||'dark';b.dataset.theme=t;if(btn)btn.onclick=()=>{t=b.dataset.theme==='dark'?'light':'dark';b.dataset.theme=t;localStorage.setItem('openitsm-theme',t)};})();

@@ -1,0 +1,36 @@
+{
+  "changelog": {
+    "categories": [
+      {
+        "title": "Security updates",
+        "labels": [
+          "security"
+        ]
+      },
+      {
+        "title": "Bug fixes",
+        "labels": [
+          "bug"
+        ]
+      },
+      {
+        "title": "Enhancements",
+        "labels": [
+          "enhancement"
+        ]
+      },
+      {
+        "title": "Documentation",
+        "labels": [
+          "documentation"
+        ]
+      },
+      {
+        "title": "Other changes",
+        "labels": [
+          "*"
+        ]
+      }
+    ]
+  }
+}
